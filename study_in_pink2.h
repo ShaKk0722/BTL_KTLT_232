@@ -541,6 +541,59 @@ public:
     }
 };
 
+class BaseItem
+{
+private:
+    ItemType type;
+
+public:
+    BaseItem(ItemType type) : type(type){};
+    virtual bool canUse(Character *obj, Robot *robot) = 0;
+    virtual void use(Character *obj, Robot *robot) = 0;
+};
+class MagicBook : public BaseItem
+{
+public:
+    MagicBook() : BaseItem(MAGIC_BOOK){};
+    bool canUse(Character *obj, Robot *robot) override;
+    void use(Character *obj, Robot *robot) override;
+};
+
+class EnergyDrink : public BaseItem
+{
+public:
+    EnergyDrink() : BaseItem(ENERGY_DRINK){};
+    bool canUse(Character *obj, Robot *robot) override;
+    void use(Character *obj, Robot *robot) override;
+};
+
+class FirstAid : public BaseItem
+{
+public:
+    FirstAid() : BaseItem(FIRST_AID){};
+    bool canUse(Character *obj, Robot *robot) override;
+    void use(Character *obj, Robot *robot) override;
+};
+
+class ExcemptionCard : public BaseItem
+{
+public:
+    ExcemptionCard() : BaseItem(EXCEMPTION_CARD){};
+    bool canUse(Character *obj, Robot *robot) override;
+    void use(Character *obj, Robot *robot) override;
+};
+
+class PassingCard : public BaseItem
+{
+private:
+    string chal;
+
+public:
+    PassingCard(string challenge) : chal(challenge), BaseItem(PASSING_CARD){};
+    bool canUse(Character *obj, Robot *robot) override;
+    void use(Character *obj, Robot *robot) override;
+};
+
 class BaseBag
 {
 private:
