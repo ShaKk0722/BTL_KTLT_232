@@ -62,7 +62,7 @@ enum RobotType
     S,
     W,
     SW
-};
+};  
 
 class MapElement
 {
@@ -80,7 +80,10 @@ public:
 class Path : public MapElement
 {
 public:
-    Path();
+    Path()
+    {
+        this->type = PATH;
+    }
     //~Path();
     ElementType getType() const
     {
@@ -95,7 +98,10 @@ public:
 class Wall : public MapElement
 {
 public:
-    Wall();
+    Wall()
+    {
+        this->type = WALL;
+    }
     //~Wall();
     ElementType getType() const
     {
@@ -113,8 +119,16 @@ private:
     int req_exp;
 
 public:
-    FakeWall(){}; // default constructor
-    FakeWall(int req_exp);
+    FakeWall()
+    {
+        this->type = FAKE_WALL;
+        req_exp = 0;
+    }
+    FakeWall(int in_req_exp)
+    {
+        this->type = FAKE_WALL;
+        req_exp = in_req_exp;
+    }
     //~FakeWall();
     ElementType getType() const
     {
@@ -123,7 +137,7 @@ public:
     int getReqExp() const override
     {
         return this->req_exp;
-    }
+    }   
 };
 
 class Map
@@ -133,8 +147,52 @@ private:
     MapElement ***map;
 
 public:
-    Map(int num_rows, int num_cols, int num_walls, Position *array_walls, int num_fake_walls, Position *array_fake_walls);
-    ~Map();
+    Map(int num_rows, int num_cols, int num_walls, Position* array_walls, int num_fake_walls, Position* array_fake_walls)
+    {
+        this->num_rows = num_rows;
+        this->num_cols = num_cols;
+
+        map = new MapElement**[num_rows];
+        for (int i = 0; i < num_rows; i++)
+        {
+            map[i] = new MapElement * [num_cols];
+            for (int j = 0; j < num_cols; j++)
+            {
+                map[i][j] = NULL;
+            }
+        }
+
+        for (int i = 0; i < num_walls; i++)
+        {
+            Position pos = array_walls[i];
+            map[pos.getRow()][pos.getCol()] = new Wall;
+        }
+        for (int i = 0; i < num_fake_walls; i++)
+        {
+            Position pos = array_fake_walls[i];
+            int in_req_exp = (pos.getRow() *257 + pos.getCol() * 139 + 89) % 900 + 1;
+            map[pos.getRow()][pos.getCol()] = new FakeWall(in_req_exp);
+        }
+        for (int i = 0; i < num_rows; i++)
+        {
+            for (int j = 0; j < num_cols; j++)
+            {
+                if (map[i][j] != NULL) map[i][j] = new Path;
+            }
+        }
+    }
+    ~Map()
+    {
+        for (int i = 0; i < num_rows; i++)
+        {
+            for (int j = 0; j < num_cols; j++)
+            {
+                delete map[i][j];
+            }
+            delete[] map[i];
+        }
+        delete[] map;
+    }
     int getNumRows() const
     {
         return this->num_rows;
@@ -143,34 +201,72 @@ public:
     {
         return this->num_cols;
     }
-    // bool isValid ( const Position & pos , MovingObject * mv_obj ) const ;
+    bool isValid(const Position& pos, MovingObject* mv_obj) const
+    {
+        if (pos.getRow() == -1 || pos.getRow() == this->num_rows) return false;
+        if (pos.getCol() == -1 || pos.getCol() == this->num_cols) return false;
+        if (map[pos.getRow()][pos.getCol()]->getType() == PATH) return true;
+        if (map[pos.getRow()][pos.getCol()]->getType() == WALL) return false;
+        if (mv_obj->getName() == "Sherlock" || mv_obj->getName() == "Criminal") return true;
+        if (mv_obj->getEXP() > map[pos.getRow()][pos.getCol()]->getReqExp()) return true;
+        return false;
+    }
 };
 
 class Position
 {
 private:
     int r, c;
-
 public:
     static const Position npos;
-
-    Position(int r = 0, int c = 0);
-
-    Position(const string &str_pos);
+    Position(int r = 0, int c = 0)
+    {
+        this->r = r;
+        this->c = c;
+    }
+    // str_pos = (12,342)
+    Position(const string& str_pos)
+    {
+        int comma = str_pos.find(',');
+        int end = str_pos.find(')');
+        string r_value = str_pos.substr(1, comma - 1);
+        string c_value = str_pos.substr(comma + 1, end - comma - 1);
+        this->r = stoi(r_value);
+        this->c = stoi(c_value);
+    }
 
     bool operator!=(const Position &other) const
     {
         return r != other.r || c != other.c;
     }
 
-    int getRow() const;
-    int getCol() const;
-    void setRow(int r);
-    void setCol(int c);
+    int getRow() const
+    {
+        return this->r;
+    }
+    int getCol() const
+    {
+        return this->c;
+    }
+    void setRow(int r)
+    {
+        this->r = r;
+    }
+    void setCol(int c)
+    {
+        this->c = c;
+    }
 
-    string str() const;
+    string str() const
+    {
+        string ans = "(" + to_string(r) + "," + to_string(c) + ")";
+        return ans;
+    }
 
-    bool isEqual(int in_r, int in_c) const;
+    bool isEqual(int in_r, int in_c) const
+    {
+        return (this->r == in_r && this->c == in_c);
+    }
 };
 
 class MovingObject
@@ -182,16 +278,20 @@ protected:
     string name;
 
 public:
+    virtual int getEXP() = 0;
     MovingObject(){}; // default constructor
-    MovingObject(int index, const Position pos, Map *map, const string &name = "");
-    virtual ~MovingObject();
-    virtual Position getNextPosition() = 0;
+    MovingObject(int index, const Position pos, Map* map, const string& name = "")
+    {
+        this->index = index;
+        this->pos = pos;
+        this->map = map;
+        this->name = name;
+    }
+    
     Position getCurrentPosition() const
     {
         return this->pos;
     }
-    virtual void move() = 0;
-    virtual string str() const = 0;
     int getIndex() const
     {
         return index;
@@ -200,6 +300,21 @@ public:
     {
         return name;
     }
+    void set_position(Position& pos)
+    {
+        this->pos.setRow(pos.getRow());
+        this->pos.setCol(pos.getCol());
+    }
+
+    virtual ~MovingObject()
+    {
+        delete this->map;
+    }
+    virtual Position getNextPosition() = 0;
+    virtual void move() = 0;
+    virtual string str() const = 0;
+
+    
 }; // abstract class
 
 class Character : public MovingObject
@@ -210,11 +325,11 @@ protected:
 
 public:
     Character(){}; // default constructor
-    Character(int index, const Position &pos, Map *map, string name) : MovingObject(index, pos, map, name)
+    Character(int index, const Position &pos, Map *map,int hp,int exp, string name) : MovingObject(index, pos, map, name)
     {
-        this->hp = 0;
-        this->exp = 0;
-    };
+        setHP(hp);
+        setEXP(exp);
+    }
     int getHP() const
     {
         return hp;
@@ -225,11 +340,12 @@ public:
     }
     void setHP(int hp)
     {
-        this->hp = hp;
+        this->hp = (hp > 500) ? 500 : hp;
     }
     void setEXP(int exp)
     {
-        this->exp = exp;
+
+        this->exp = (exp > 900) ? 900 : exp;
     }
 };
 class Sherlock : public Character
@@ -239,17 +355,57 @@ private:
     string moving_rule;
     SherlockBag *bag;
     // int next_char_ofrule;
-    // static const int start = 0;
+    int start = -1;
+
 
 public:
-    Sherlock(int index, const string &moving_rule, const Position &init_pos, Map *map, int init_hp, int init_exp);
-    // getNextPosition
-    // move
-    // str
-    // ...
-    string str() const override;
-    void move() override;
-    Position getNextPosition() override;
+    Sherlock(int index, const string& moving_rule, const Position& init_pos, Map* map, int init_hp, int init_exp) : Character(index, init_pos, map, init_hp, init_exp, "Sherlock")
+    {
+        this->moving_rule = moving_rule;
+    }
+    //  Sherlock[index=3;pos=(1,2);moving_rule=LRURURKL]
+    string str() const override
+    {
+        string ans = "Sherlock[index=" + to_string(this->index) + ";pos=" + this->pos.str() + ";moving_rule=" + this->moving_rule;
+    }
+    void move() override
+    {
+        Position next = getNextPosition();
+        if (next != next.npos)
+        {
+            this->set_position(next);
+        }
+    }
+    Position getNextPosition() override
+    {
+        int length = moving_rule.length();
+        start = (start + 1) % length;
+        if (moving_rule[start] == 'L')
+        {
+            Position next_cur = getCurrentPosition();
+            next_cur.setCol(next_cur.getCol() - 1);
+            return (map->isValid(next_cur, this) ? next_cur : next_cur.npos);
+        }
+        else if(moving_rule[start] == 'R')
+        {
+            Position next_cur = getCurrentPosition();
+            next_cur.setCol(next_cur.getCol() + 1);
+            return (map->isValid(next_cur, this) ? next_cur : next_cur.npos);
+        }
+        else if (moving_rule[start] == 'U')
+        {
+            Position next_cur = getCurrentPosition();
+            next_cur.setRow(next_cur.getRow() - 1);
+            return (map->isValid(next_cur, this) ? next_cur : next_cur.npos);
+        }
+        else if (moving_rule[start] == 'D')
+        {
+            Position next_cur = getCurrentPosition();
+            next_cur.setRow(next_cur.getRow() + 1);
+            return (map->isValid(next_cur, this) ? next_cur : next_cur.npos);
+        }
+        
+    }
     SherlockBag *getBag()
     {
         return this->bag;
@@ -301,14 +457,86 @@ private:
     int step_count;
 
 public:
-    Criminal(int index, const Position &init_pos, Map *map, Sherlock *sherlock, Watson *watson);
-    // getNextPosition
-    // move
-    // str
-    // ...
-    string str() const override;
+    Criminal(int index, const Position& init_pos, Map* map, Sherlock* sherlock, Watson* watson): Character(index,init_pos,map,0,0,"Criminal")
+    {
+        this->sherlock = sherlock;
+        this->watson = watson;
+    }
+    string str() const override
+    {
+        string ans = "Criminal[index=" + to_string(this->index) + ";pos=" + this->pos.str();
+        return ans;
+    }
+    int get_distance(int x1, int y1, int x2, int y2)
+    {
+        return abs(x1 - x2) + abs(y1 - y2);
+    }
     void move() override;
-    Position getNextPosition() override;
+    Position getNextPosition() override
+    {
+        Position pri_cur = this->getCurrentPosition();
+
+        Position pri_up = pri_cur;
+        pri_up.setRow(pri_cur.getRow() - 1);
+
+        Position pri_down = pri_cur;
+        pri_down.setRow(pri_cur.getRow() + 1);
+
+        Position pri_left = pri_cur;
+        pri_left.setCol(pri_cur.getCol() - 1);
+
+        Position pri_right = pri_cur;
+        pri_right.setCol(pri_cur.getCol() + 1);
+
+        Position sher_cur = sherlock->getCurrentPosition();
+        Position wat_cur = watson->getCurrentPosition();
+        int l = 0, r = 0, u = 0, d = 0;
+        if (map->isValid(pri_up,this))
+        {
+            int dis_sher = get_distance(pri_up.getRow(), pri_up.getCol(), sher_cur.getRow(), sher_cur.getCol());
+            int dis_wat = get_distance(pri_up.getRow(), pri_up.getCol(), wat_cur.getRow(), wat_cur.getCol());
+            u = dis_sher + dis_wat;
+        }
+        if (map->isValid(pri_down, this))
+        {
+            int dis_sher = get_distance(pri_down.getRow(), pri_down.getCol(), sher_cur.getRow(), sher_cur.getCol());
+            int dis_wat = get_distance(pri_down.getRow(), pri_down.getCol(), wat_cur.getRow(), wat_cur.getCol());
+            d = dis_sher + dis_wat;
+        }
+        if (map->isValid(pri_left, this))
+        {
+            int dis_sher = get_distance(pri_left.getRow(), pri_left.getCol(), sher_cur.getRow(), sher_cur.getCol());
+            int dis_wat = get_distance(pri_left.getRow(), pri_left.getCol(), wat_cur.getRow(), wat_cur.getCol());
+            l = dis_sher + dis_wat;
+        }
+        if (map->isValid(pri_right, this))
+        {
+            int dis_sher = get_distance(pri_right.getRow(), pri_right.getCol(), sher_cur.getRow(), sher_cur.getCol());
+            int dis_wat = get_distance(pri_right.getRow(), pri_right.getCol(), wat_cur.getRow(), wat_cur.getCol());
+            r = dis_sher + dis_wat;
+        }
+        int ans = u;
+        char ch = 'u';
+        if (ans < l)
+        {
+            ans = l;
+            ch = 'l';
+        }
+        if (ans < d)
+        {
+            ans = d;
+            ch = 'd';
+        }
+        if (ans < r)
+        {
+            ans = r;
+            ch = 'r';
+        }
+        if (ch == 'u') return pri_up;
+        else if( ch == 'l') return pri_left;
+        else if (ch == 'd') return pri_down;
+        else return pri_right;
+    }
     Position getPrevPosition() const
     {
         return this->prev_pos;
