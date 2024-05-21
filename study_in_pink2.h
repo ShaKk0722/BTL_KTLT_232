@@ -25,7 +25,8 @@ class Position;
 // class Configuration;
 class Map;
 class Character;
-
+class Sherlock;
+class Watson;
 class Criminal;
 class RobotS;
 class RobotW;
@@ -140,6 +141,114 @@ public:
     }
 };
 
+class Position
+{
+private:
+    int r, c;
+
+public:
+    static const Position npos;
+    Position(int r = 0, int c = 0)
+    {
+        this->r = r;
+        this->c = c;
+    }
+    // str_pos = (12,342)
+    Position(const string& str_pos)
+    {
+        int comma = str_pos.find(',');
+        int end = str_pos.find(')');
+        string r_value = str_pos.substr(1, comma - 1);
+        string c_value = str_pos.substr(comma + 1, end - comma - 1);
+        this->r = stoi(r_value);
+        this->c = stoi(c_value);
+    }
+
+    bool operator!=(const Position& other) const
+    {
+        return r != other.r || c != other.c;
+    }
+
+    int getRow() const
+    {
+        return this->r;
+    }
+    int getCol() const
+    {
+        return this->c;
+    }
+    void setRow(int r)
+    {
+        this->r = r;
+    }
+    void setCol(int c)
+    {
+        this->c = c;
+    }
+
+    string str() const
+    {
+        string ans = "(" + to_string(r) + "," + to_string(c) + ")";
+        return ans;
+    }
+
+    bool isEqual(int in_r, int in_c) const
+    {
+        return (this->r == in_r && this->c == in_c);
+    }
+};
+class MovingObject
+{
+protected:
+    int index;
+    Position pos;
+    Map* map;
+    string name;
+
+public:
+    virtual int getEXP() const
+    {
+        return 0;
+    }
+    MovingObject() {}; // default constructor
+    MovingObject(int index, const Position pos, Map* map, const string& name = "")
+    {
+        this->index = index;
+        this->pos = pos;
+        this->map = map;
+        this->name = name;
+    }
+
+    Position getCurrentPosition() const
+    {
+        return this->pos;
+    }
+    int getIndex() const
+    {
+        return index;
+    }
+    string getName() const
+    {
+        return name;
+    }
+    void set_position(Position& pos)
+    {
+        this->pos.setRow(pos.getRow());
+        this->pos.setCol(pos.getCol());
+    }
+
+    virtual ~MovingObject()
+    {
+        delete this->map;
+    }
+    virtual Position getNextPosition() = 0;
+    virtual void move() = 0;
+    virtual string str() const
+    {
+        return "empty";
+    }
+
+}; // abstract class
 class Map
 {
 private:
@@ -220,109 +329,9 @@ public:
     }
 };
 
-class Position
-{
-private:
-    int r, c;
 
-public:
-    static const Position npos;
-    Position(int r = 0, int c = 0)
-    {
-        this->r = r;
-        this->c = c;
-    }
-    // str_pos = (12,342)
-    Position(const string &str_pos)
-    {
-        int comma = str_pos.find(',');
-        int end = str_pos.find(')');
-        string r_value = str_pos.substr(1, comma - 1);
-        string c_value = str_pos.substr(comma + 1, end - comma - 1);
-        this->r = stoi(r_value);
-        this->c = stoi(c_value);
-    }
 
-    bool operator!=(const Position &other) const
-    {
-        return r != other.r || c != other.c;
-    }
 
-    int getRow() const
-    {
-        return this->r;
-    }
-    int getCol() const
-    {
-        return this->c;
-    }
-    void setRow(int r)
-    {
-        this->r = r;
-    }
-    void setCol(int c)
-    {
-        this->c = c;
-    }
-
-    string str() const
-    {
-        string ans = "(" + to_string(r) + "," + to_string(c) + ")";
-        return ans;
-    }
-
-    bool isEqual(int in_r, int in_c) const
-    {
-        return (this->r == in_r && this->c == in_c);
-    }
-};
-
-class MovingObject
-{
-protected:
-    int index;
-    Position pos;
-    Map *map;
-    string name;
-
-public:
-    virtual int getEXP() = 0;
-    MovingObject(){}; // default constructor
-    MovingObject(int index, const Position pos, Map *map, const string &name = "")
-    {
-        this->index = index;
-        this->pos = pos;
-        this->map = map;
-        this->name = name;
-    }
-
-    Position getCurrentPosition() const
-    {
-        return this->pos;
-    }
-    int getIndex() const
-    {
-        return index;
-    }
-    string getName() const
-    {
-        return name;
-    }
-    void set_position(Position &pos)
-    {
-        this->pos.setRow(pos.getRow());
-        this->pos.setCol(pos.getCol());
-    }
-
-    virtual ~MovingObject()
-    {
-        delete this->map;
-    }
-    virtual Position getNextPosition() = 0;
-    virtual void move() = 0;
-    virtual string str() const = 0;
-
-}; // abstract class
 
 class Character : public MovingObject
 {
@@ -368,7 +377,6 @@ public:
     {
         this->moving_rule = moving_rule;
     }
-    //  Sherlock[index=3;pos=(1,2);moving_rule=LRURURKL]
     string str() const override
     {
         string ans = "Sherlock[index=" + to_string(this->index) + ";pos=" + this->pos.str() + ";moving_rule=" + this->moving_rule;
@@ -428,7 +436,6 @@ private:
     // TODO
     string moving_rule;
     WatsonBag *bag;
-    // static const int start = 0;
     int start = -1;
 
 public:
@@ -514,7 +521,17 @@ public:
     {
         return abs(x1 - x2) + abs(y1 - y2);
     }
-    void move() override;
+    void move() override
+    {
+        Position next = getNextPosition();
+        if (next != next.npos)
+        {
+            prev_pos.setRow(this->getCurrentPosition().getRow());
+            prev_pos.setCol(this->getCurrentPosition().getCol());
+            this->set_position(next);
+            step_count++;
+        }
+    }
     Position getNextPosition() override
     {
         Position pri_cur = this->getCurrentPosition();
@@ -602,14 +619,47 @@ private:
     int count;
 
 public:
-    ArrayMovingObject(int capacity);
-
-    ~ArrayMovingObject();
-    bool isFull() const;
-    bool add(MovingObject *mv_obj);
+    ArrayMovingObject(int capacity)
+    {
+        this->capacity = capacity;
+        this->count = 0;
+        this->arr_mv_objs = new MovingObject * [capacity];
+        for (int i = 0; i < capacity; i++)
+        {
+            arr_mv_objs[i] = NULL;
+        }
+    }
+    ~ArrayMovingObject()
+    {
+        for (int i = 0; i < capacity; i++)
+        {
+            delete arr_mv_objs[i];
+        }
+        delete[] arr_mv_objs;
+    }
+    bool isFull() const
+    {
+        return (count == capacity);
+    }
+    bool add(MovingObject* mv_obj)
+    {
+        if (this->isFull()) return false;
+        this->arr_mv_objs[count] = mv_obj;
+        this->count++;
+        return true;
+    }
     MovingObject *get(int index) const;
     int size() const; // return current number of elements in the array
-    string str() const;
+    string str() const
+    {
+        string ans = " ArrayMovingObject[count=" + to_string(this->count) + ";capacity=" + to_string(this->capacity);
+        for (int i = 0; i < count; i++)
+        {
+            ans = ans + ";" + this->arr_mv_objs[i]->str();
+        }
+        ans = ans + "]";
+        return ans;
+    }
     bool remove(MovingObject *mv_obj);
 };
 
@@ -635,8 +685,8 @@ private:
     int watson_init_exp;
     Position criminal_init_pos;
     int num_steps;
-
-    void loadConfig(const string &str)
+public:
+    void loadConfig(const string& str)
     {
         int find_equal = str.find('=');
         string name = str.substr(0, find_equal);
@@ -706,11 +756,25 @@ private:
             cout << "Invalid name: " << name << endl;
         }
     }
-
-public:
-    Configuration(const string &filepath);
-    ~Configuration();
-    string str() const;
+    Configuration(const string& filepath)
+    {
+        ifstream file(filepath);
+        string line;
+        while (getline(file, line)) {
+            loadConfig(line);
+        }
+        file.close();
+    }
+    ~Configuration()
+    {
+        delete[] arr_fake_walls;
+        delete[] arr_walls;
+    }
+    string str() const
+    {
+        string ans = "Configuration[\n";
+        return ans;
+    }
 };
 
 // Robot, BaseItem, BaseBag,...
@@ -719,10 +783,13 @@ class Robot : public MovingObject
 protected:
     RobotType robottype;
     BaseItem *item;
-
 public:
     Robot(){};
-    Robot(RobotType robotType, BaseItem item, int index, const Position &pos, Map *map, string name);
+    Robot(RobotType robotType, BaseItem *item, int index, const Position& pos, Map* map, string name) : MovingObject(index, pos, map, name)
+    {
+        this->robottype = robotType;
+        this->item = item;
+    }
 
     bool addtoArrayMovingObject(ArrayMovingObject &arr_moving)
     {
@@ -754,7 +821,10 @@ private:
 
 public:
     RobotC(){};
-    RobotC(int index, const Position &pos, Map *map, Criminal *criminal);
+    RobotC(int index, const Position& pos, Map* map, Criminal* criminal) : Robot()
+    {
+
+    }
     void move();
     string str();
     Position getNextPosition();
