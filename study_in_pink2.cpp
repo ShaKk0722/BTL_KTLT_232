@@ -5,7 +5,7 @@
 /// Complete the following functions
 /// DO NOT modify any parameters in the functions.
 ////////////////////////////////////////////////////////////////////////
-
+const Position Position::npos = Position(-1, -1);
 //          Code bên dưới
 
 // MapElement
@@ -55,74 +55,7 @@
 // BaseBag
 
 // BaseBag - SherlockBag
-SherlockBag::SherlockBag(Sherlock *sherlock)
-{
-    this->obj = sherlock;
-}
-Node *SherlockBag::getHead()
-{
-    return this->head;
-}
-bool SherlockBag::insert(BaseItem *item)
-{
-    // ...
-}
-BaseItem *SherlockBag::get()
-{
-    // ...
-}
 
-BaseItem *SherlockBag::get(ItemType itemType)
-{
-    // ...
-}
-
-string SherlockBag::str() const
-{
-    // ...
-}
-
-Node *SherlockBag::remove(ItemType itemType)
-{
-    // ...
-}
-
-// BaseBag - WatsonBag
-SherlockBag::SherlockBag(Sherlock *sherlock)
-{
-    // ...
-}
-
-Node *SherlockBag::getHead()
-{
-    // ...
-}
-
-bool SherlockBag::insert(BaseItem *item)
-{
-    // ...
-}
-
-BaseItem *SherlockBag::get()
-{
-    // ...
-}
-
-BaseItem *SherlockBag::get(ItemType itemType)
-{
-    // ...
-}
-
-string SherlockBag::str() const
-{
-    // ...
-}
-
-Node *SherlockBag::remove(ItemType itemType)
-{
-    // ...
-}
-// Configuration
 
 ////////////////////////////////////////////////
 /// END OF STUDENT'S ANSWER
