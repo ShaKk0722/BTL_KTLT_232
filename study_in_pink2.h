@@ -324,7 +324,7 @@ public:
             return true;
         if (mv_obj->getName() == "Sherlock" || mv_obj->getName() == "Criminal")
             return true;
-        if (mv_obj->getEXP() > map[pos.getRow()][pos.getCol()]->getReqExp())
+        if (mv_obj->getEXP() >= map[pos.getRow()][pos.getCol()]->getReqExp())
             return true;
         return false;
     }
@@ -574,7 +574,8 @@ public:
             int dis_wat = get_distance(pri_right.getRow(), pri_right.getCol(), wat_cur.getRow(), wat_cur.getCol());
             r = dis_sher + dis_wat;
         }
-        if (u == 0 && d == 0 && l == 0 && r == 0) return pri_cur.npos;
+        if (u == 0 && d == 0 && l == 0 && r == 0)
+            return pri_cur.npos;
         int ans = u;
         char ch = 'u';
         if (ans < l)
@@ -858,15 +859,15 @@ class MagicBook : public BaseItem
 {
 public:
     MagicBook() : BaseItem(MAGIC_BOOK){};
-    bool canUse(Character* obj, Robot* robot) override
+    bool canUse(Character *obj, Robot *robot) override
     {
         return obj->getEXP() <= 350;
     }
-    void use(Character* obj, Robot* robot) override
+    void use(Character *obj, Robot *robot) override
     {
         if (canUse(obj, robot))
         {
-            obj->setEXP(obj->getEXP() * 125/100);
+            obj->setEXP(obj->getEXP() * 125 / 100);
         }
     }
     string str() override
@@ -879,11 +880,11 @@ class EnergyDrink : public BaseItem
 {
 public:
     EnergyDrink() : BaseItem(ENERGY_DRINK){};
-    bool canUse(Character* obj, Robot* robot) override
+    bool canUse(Character *obj, Robot *robot) override
     {
         return obj->getHP() <= 100;
     }
-    void use(Character* obj, Robot* robot) override
+    void use(Character *obj, Robot *robot) override
     {
         if (canUse(obj, robot))
         {
@@ -900,11 +901,11 @@ class FirstAid : public BaseItem
 {
 public:
     FirstAid() : BaseItem(FIRST_AID){};
-    bool canUse(Character* obj, Robot* robot) override
+    bool canUse(Character *obj, Robot *robot) override
     {
         return (obj->getEXP() <= 350 || obj->getHP() <= 100);
     }
-    void use(Character* obj, Robot* robot) override
+    void use(Character *obj, Robot *robot) override
     {
         if (canUse(obj, robot))
         {
@@ -921,13 +922,12 @@ class ExcemptionCard : public BaseItem
 {
 public:
     ExcemptionCard() : BaseItem(EXCEMPTION_CARD){};
-    bool canUse(Character* obj, Robot* robot) override
+    bool canUse(Character *obj, Robot *robot) override
     {
         return (obj->getName() == "Sherlock" && obj->getHP() % 2 != 0);
     }
-    void use(Character* obj, Robot* robot) override
+    void use(Character *obj, Robot *robot) override
     {
-        
     }
     string str() override
     {
@@ -942,16 +942,20 @@ private:
 
 public:
     PassingCard(string challenge) : chal(challenge), BaseItem(PASSING_CARD){};
-    bool canUse(Character* obj, Robot* robot) override
+    bool canUse(Character *obj, Robot *robot) override
     {
         return (obj->getName() == "Watson" && obj->getHP() % 2 != 0);
     }
-    void use(Character* obj, Robot* robot) override
+    void use(Character *obj, Robot *robot) override
     {
-        if (this->chal == "all") return;
-        if (this->chal == robot->getName()) return;
-        if (obj->getEXP() >= 50) obj->setEXP(obj->getEXP() - 50);
-        else obj->setEXP(0);
+        if (this->chal == "all")
+            return;
+        if (this->chal == robot->getName())
+            return;
+        if (obj->getEXP() >= 50)
+            obj->setEXP(obj->getEXP() - 50);
+        else
+            obj->setEXP(0);
     }
     string str() override
     {
@@ -1125,7 +1129,8 @@ public:
             int dis_sher = calculateDistance(pri_right, sher_cur);
             r = dis_sher;
         }
-        if (u == 0 && d == 0 && l == 0 && r == 0) return pri_cur.npos;
+        if (u == 0 && d == 0 && l == 0 && r == 0)
+            return pri_cur.npos;
         int ans = u;
         char ch = 'u';
         if (ans < r)
@@ -1215,7 +1220,8 @@ public:
             int dis_wat = calculateDistance(pri_right, wat_cur);
             r = dis_wat;
         }
-        if (u == 0 && d == 0 && l == 0 && r == 0) return pri_cur.npos;
+        if (u == 0 && d == 0 && l == 0 && r == 0)
+            return pri_cur.npos;
         int ans = u;
         char ch = 'u';
         if (ans < r)
@@ -1253,7 +1259,14 @@ private:
 public:
     RobotSW(){};
     RobotSW(int index, const Position &pos, Map *map, Criminal *criminal, Sherlock *sherlock, Watson *watson);
-    void move();
+    void move()
+    {
+        Position next = getNextPosition();
+        if (next != next.npos)
+        {
+            this->set_position(next);
+        }
+    }
     string str()
     {
         string ans = "Robot[pos=" + this->getCurrentPosition().str() + ";type=SW" + ";dist=";
@@ -1265,7 +1278,178 @@ public:
     }
     Position getNextPosition()
     {
+        Position pri_cur = this->getCurrentPosition();
 
+        Position pri_up_up = pri_cur;
+        pri_up_up.setRow(pri_cur.getRow() - 1);
+        Position check_up = pri_up_up;
+        pri_up_up.setRow(pri_cur.getRow() - 1);
+
+        Position pri_down_down = pri_cur;
+        pri_down_down.setRow(pri_cur.getRow() + 1);
+        Position check_down = pri_down_down;
+        pri_down_down.setRow(pri_cur.getRow() + 1);
+
+        Position pri_left_left = pri_cur;
+        pri_left_left.setCol(pri_cur.getCol() - 1);
+        Position check_left = pri_left_left;
+        pri_left_left.setCol(pri_cur.getCol() - 1);
+
+        Position pri_right_right = pri_cur;
+        pri_right_right.setCol(pri_cur.getCol() + 1);
+        Position check_right = pri_right_right;
+        pri_right_right.setCol(pri_cur.getCol() + 1);
+
+        Position pri_up_right = pri_cur;
+        pri_up_right.setRow(pri_cur.getRow() - 1);
+        pri_up_right.setCol(pri_cur.getCol() + 1);
+
+        Position pri_down_right = pri_cur;
+        pri_down_right.setRow(pri_cur.getRow() + 1);
+        pri_down_right.setCol(pri_cur.getCol() + 1);
+
+        Position pri_down_left = pri_cur;
+        pri_down_left.setRow(pri_cur.getRow() + 1);
+        pri_down_left.setCol(pri_cur.getCol() - 1);
+
+        Position pri_up_left = pri_cur;
+        pri_up_left.setRow(pri_cur.getRow() - 1);
+        pri_up_left.setCol(pri_cur.getCol() - 1);
+
+        Position sher_cur = sherlock->getCurrentPosition();
+        Position wat_cur = watson->getCurrentPosition();
+        int l = 0, r = 0, u = 0, d = 0;
+        int u_r = 0, d_r = 0, d_l = 0, u_l = 0;
+
+        if (map->isValid(pri_up_up, this))
+        {
+            if (map->isValid(check_up, this))
+            {
+                int dis_sher = calculateDistance(pri_up_up, sher_cur);
+                int dis_wat = calculateDistance(pri_up_up, wat_cur);
+                u = dis_wat + dis_sher;
+            }
+        }
+        if (map->isValid(pri_down_down, this))
+        {
+            if (map->isValid(check_down, this))
+            {
+                int dis_sher = calculateDistance(pri_down_down, sher_cur);
+                int dis_wat = calculateDistance(pri_down_down, wat_cur);
+                d = dis_wat + dis_sher;
+            }
+        }
+        if (map->isValid(pri_left_left, this))
+        {
+            if (map->isValid(check_left, this))
+            {
+                int dis_sher = calculateDistance(pri_left_left, sher_cur);
+                int dis_wat = calculateDistance(pri_left_left, wat_cur);
+                l = dis_wat + dis_sher;
+            }
+        }
+        if (map->isValid(pri_right_right, this))
+        {
+            if (map->isValid(check_right, this))
+            {
+                int dis_sher = calculateDistance(pri_right_right, sher_cur);
+                int dis_wat = calculateDistance(pri_right_right, wat_cur);
+                r = dis_wat + dis_sher;
+            }
+        }
+        if (map->isValid(pri_up_right, this))
+        {
+            if (map->isValid(check_up, this) || map->isValid(check_right, this))
+            {
+                int dis_sher = calculateDistance(pri_up_right, sher_cur);
+                int dis_wat = calculateDistance(pri_up_right, wat_cur);
+                u_r = dis_wat + dis_sher;
+            }
+        }
+        if (map->isValid(pri_down_right, this))
+        {
+            if (map->isValid(check_down, this) || map->isValid(check_right, this))
+            {
+                int dis_sher = calculateDistance(pri_down_right, sher_cur);
+                int dis_wat = calculateDistance(pri_down_right, wat_cur);
+                d_r = dis_wat + dis_sher;
+            }
+        }
+        if (map->isValid(pri_down_left, this))
+        {
+            if (map->isValid(check_down, this) || map->isValid(check_left, this))
+            {
+                int dis_sher = calculateDistance(pri_down_left, sher_cur);
+                int dis_wat = calculateDistance(pri_down_left, wat_cur);
+                d_l = dis_wat + dis_sher;
+            }
+        }
+        if (map->isValid(pri_up_left, this))
+        {
+            if (map->isValid(check_up, this) || map->isValid(check_left, this))
+            {
+                int dis_sher = calculateDistance(pri_up_left, sher_cur);
+                int dis_wat = calculateDistance(pri_up_left, wat_cur);
+                u_l = dis_wat + dis_sher;
+            }
+        }
+        if (u == 0 && d == 0 && l == 0 && r == 0 && u_r == 0 && d_r == 0 && d_l == 0 && u_l == 0)
+        {
+            return pri_cur.npos;
+        }
+        int ans = u;
+        char ch = 'u';
+        if (ans < u_r)
+        {
+            ans = u_r;
+            ch = 'u_r';
+        }
+        if (ans < r)
+        {
+            ans = r;
+            ch = 'r';
+        }
+        if (ans < d_r)
+        {
+            ans = d_r;
+            ch = 'd_r';
+        }
+        if (ans < d)
+        {
+            ans = d;
+            ch = 'd';
+        }
+        if (ans < d_l)
+        {
+            ans = d_l;
+            ch = 'd_l';
+        }
+        if (ans < l)
+        {
+            ans = l;
+            ch = 'l';
+        }
+        if (ans < u_l)
+        {
+            ans = u_l;
+            ch = 'u_l';
+        }
+        if (ch == 'u')
+            return pri_up_up;
+        else if (ch == 'u_r')
+            return pri_up_right;
+        else if (ch == 'r')
+            return pri_right_right;
+        else if (ch == 'd_r')
+            return pri_down_right;
+        else if (ch == 'd')
+            return pri_down_down;
+        else if (ch == 'd_l')
+            return pri_down_left;
+        else if (ch == 'l')
+            return pri_left_left;
+        else
+            return pri_up_left;
     }
 };
 
@@ -1316,7 +1500,7 @@ private:
 
 public:
     SherlockBag(){};
-    SherlockBag(Sherlock* sherlock)
+    SherlockBag(Sherlock *sherlock)
     {
         this->count = 0;
         this->head = NULL;
@@ -1326,10 +1510,11 @@ public:
     {
         return this->head;
     }
-    bool insert(BaseItem* item)
+    bool insert(BaseItem *item)
     {
-        if (count >= capacity) return false;
-        Node* temp = new Node(item, head);
+        if (count >= capacity)
+            return false;
+        Node *temp = new Node(item, head);
         head = temp;
         count++;
         return true;
@@ -1376,8 +1561,8 @@ public:
     string str() const
     {
         string ans = "Bag[count=" + to_string(this->count) + ";";
-        
-        for (Node* temp = head; temp != NULL; temp = temp->next)
+
+        for (Node *temp = head; temp != NULL; temp = temp->next)
         {
             ans += temp->item->str() + ",";
             temp = temp->next;
@@ -1396,7 +1581,7 @@ private:
 
 public:
     WatsonBag(){};
-    WatsonBag(Watson* watson)
+    WatsonBag(Watson *watson)
     {
         this->count = 0;
         this->head = NULL;
@@ -1406,10 +1591,11 @@ public:
     {
         return head;
     }
-    bool insert(BaseItem* item)
+    bool insert(BaseItem *item)
     {
-        if (count >= capacity) return false;
-        Node* temp = new Node(item, head);
+        if (count >= capacity)
+            return false;
+        Node *temp = new Node(item, head);
         head = temp;
         count++;
         return true;
@@ -1421,8 +1607,8 @@ public:
         {
             return nullptr;
         }
-        Node* current = head;
-        Node* prev = nullptr;
+        Node *current = head;
+        Node *prev = nullptr;
         while (current != nullptr)
         {
             if (current->item->getItemType() == itemType)
@@ -1430,7 +1616,7 @@ public:
                 if (prev == nullptr)
                 {
                     head = head->next;
-                    BaseItem* temp = current->item;
+                    BaseItem *temp = current->item;
                     head->item = nullptr;
                     delete current;
                     this->count--;
@@ -1438,10 +1624,10 @@ public:
                 }
                 else
                 {
-                    BaseItem* temp = current->item;
+                    BaseItem *temp = current->item;
                     current->item = head->item;
                     head->item = nullptr;
-                    Node* tempNode = head;
+                    Node *tempNode = head;
                     head = head->next;
                     delete tempNode;
                     count--;
@@ -1457,14 +1643,14 @@ public:
     {
         string ans = "Bag[count=" + to_string(this->count) + ";";
 
-        for (Node* temp = head; temp != NULL; temp = temp->next)
+        for (Node *temp = head; temp != NULL; temp = temp->next)
         {
             ans += temp->item->str() + ",";
             temp = temp->next;
         }
         return ans + "]";
     }
-    //int deleteItem(ItemType itemType);
+    // int deleteItem(ItemType itemType);
 };
 class StudyPinkProgram
 {
@@ -1480,7 +1666,7 @@ private:
     ArrayMovingObject *arr_mv_objs;
 
 public:
-    StudyPinkProgram(const string& config_file_path)
+    StudyPinkProgram(const string &config_file_path)
     {
         config = new Configuration(config_file_path);
         map = new Map(config->map_num_rows, config->map_num_cols, config->num_walls, config->arr_walls, config->num_fake_walls, config->arr_fake_walls);
@@ -1494,9 +1680,12 @@ public:
 
     bool isStop() const
     {
-        if (this->sherlock->getHP() == 0 || this->watson->getHP() == 0) return true;
-        if (sherlock->getCurrentPosition().isEqual(criminal->getCurrentPosition().getRow(), criminal->getCurrentPosition().getCol())) return true;
-        if (watson->getCurrentPosition().isEqual(criminal->getCurrentPosition().getRow(), criminal->getCurrentPosition().getCol())) return true;
+        if (this->sherlock->getHP() == 0 || this->watson->getHP() == 0)
+            return true;
+        if (sherlock->getCurrentPosition().isEqual(criminal->getCurrentPosition().getRow(), criminal->getCurrentPosition().getCol()))
+            return true;
+        if (watson->getCurrentPosition().isEqual(criminal->getCurrentPosition().getRow(), criminal->getCurrentPosition().getCol()))
+            return true;
         return false;
     }
 
