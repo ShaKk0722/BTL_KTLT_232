@@ -574,6 +574,7 @@ public:
             int dis_wat = get_distance(pri_right.getRow(), pri_right.getCol(), wat_cur.getRow(), wat_cur.getCol());
             r = dis_sher + dis_wat;
         }
+        if (u == 0 && d == 0 && l == 0 && r == 0) return pri_cur.npos;
         int ans = u;
         char ch = 'u';
         if (ans < l)
@@ -857,8 +858,17 @@ class MagicBook : public BaseItem
 {
 public:
     MagicBook() : BaseItem(MAGIC_BOOK){};
-    bool canUse(Character *obj, Robot *robot) override;
-    void use(Character *obj, Robot *robot) override;
+    bool canUse(Character* obj, Robot* robot) override
+    {
+        return obj->getEXP() <= 350;
+    }
+    void use(Character* obj, Robot* robot) override
+    {
+        if (canUse(obj, robot))
+        {
+            obj->setEXP(obj->getEXP() * 125/100);
+        }
+    }
     string str() override
     {
         return "MagicBook";
@@ -869,8 +879,17 @@ class EnergyDrink : public BaseItem
 {
 public:
     EnergyDrink() : BaseItem(ENERGY_DRINK){};
-    bool canUse(Character *obj, Robot *robot) override;
-    void use(Character *obj, Robot *robot) override;
+    bool canUse(Character* obj, Robot* robot) override
+    {
+        return obj->getHP() <= 100;
+    }
+    void use(Character* obj, Robot* robot) override
+    {
+        if (canUse(obj, robot))
+        {
+            obj->setHP(obj->getHP() * 120 / 100);
+        }
+    }
     string str() override
     {
         return "EnergyDrink";
@@ -881,8 +900,17 @@ class FirstAid : public BaseItem
 {
 public:
     FirstAid() : BaseItem(FIRST_AID){};
-    bool canUse(Character *obj, Robot *robot) override;
-    void use(Character *obj, Robot *robot) override;
+    bool canUse(Character* obj, Robot* robot) override
+    {
+        return (obj->getEXP() <= 350 || obj->getHP() <= 100);
+    }
+    void use(Character* obj, Robot* robot) override
+    {
+        if (canUse(obj, robot))
+        {
+            obj->setHP(obj->getHP() * 150 / 100);
+        }
+    }
     string str() override
     {
         return "FirstAid";
@@ -893,8 +921,14 @@ class ExcemptionCard : public BaseItem
 {
 public:
     ExcemptionCard() : BaseItem(EXCEMPTION_CARD){};
-    bool canUse(Character *obj, Robot *robot) override;
-    void use(Character *obj, Robot *robot) override;
+    bool canUse(Character* obj, Robot* robot) override
+    {
+        return (obj->getName() == "Sherlock" && obj->getHP() % 2 != 0);
+    }
+    void use(Character* obj, Robot* robot) override
+    {
+        
+    }
     string str() override
     {
         return "ExcemptionCard";
@@ -908,8 +942,17 @@ private:
 
 public:
     PassingCard(string challenge) : chal(challenge), BaseItem(PASSING_CARD){};
-    bool canUse(Character *obj, Robot *robot) override;
-    void use(Character *obj, Robot *robot) override;
+    bool canUse(Character* obj, Robot* robot) override
+    {
+        return (obj->getName() == "Watson" && obj->getHP() % 2 != 0);
+    }
+    void use(Character* obj, Robot* robot) override
+    {
+        if (this->chal == "all") return;
+        if (this->chal == robot->getName()) return;
+        if (obj->getEXP() >= 50) obj->setEXP(obj->getEXP() - 50);
+        else obj->setEXP(0);
+    }
     string str() override
     {
         return "PassingCard";
@@ -1082,6 +1125,7 @@ public:
             int dis_sher = calculateDistance(pri_right, sher_cur);
             r = dis_sher;
         }
+        if (u == 0 && d == 0 && l == 0 && r == 0) return pri_cur.npos;
         int ans = u;
         char ch = 'u';
         if (ans < r)
@@ -1171,6 +1215,7 @@ public:
             int dis_wat = calculateDistance(pri_right, wat_cur);
             r = dis_wat;
         }
+        if (u == 0 && d == 0 && l == 0 && r == 0) return pri_cur.npos;
         int ans = u;
         char ch = 'u';
         if (ans < r)
@@ -1220,6 +1265,7 @@ public:
     }
     Position getNextPosition()
     {
+
     }
 };
 
@@ -1246,7 +1292,7 @@ public:
     virtual bool insert(BaseItem *item)
     {
         return true;
-    } // return true if insert successfully
+    }
     virtual BaseItem *get()
     {
         return nullptr;
@@ -1270,12 +1316,24 @@ private:
 
 public:
     SherlockBag(){};
-    SherlockBag(Sherlock *sherlock);
+    SherlockBag(Sherlock* sherlock)
+    {
+        this->count = 0;
+        this->head = NULL;
+        this->obj = sherlock;
+    }
     Node *getHead()
     {
         return this->head;
     }
-    bool insert(BaseItem *item);
+    bool insert(BaseItem* item)
+    {
+        if (count >= capacity) return false;
+        Node* temp = new Node(item, head);
+        head = temp;
+        count++;
+        return true;
+    }
     BaseItem *get();
     BaseItem *get(ItemType itemType)
     {
@@ -1293,38 +1351,40 @@ public:
                 {
                     head = head->next;
                     BaseItem *temp = current->item;
+                    head->item = nullptr;
                     delete current;
-                    count--;
+                    this->count--;
                     return temp;
                 }
                 else
                 {
                     BaseItem *temp = current->item;
                     current->item = head->item;
+                    head->item = nullptr;
                     Node *tempNode = head;
                     head = head->next;
                     delete tempNode;
                     count--;
                     return temp;
                 }
-                prev = current;
-                current = current->next;
             }
+            prev = current;
+            current = current->next;
         }
         return nullptr;
     }
     string str() const
     {
         string ans = "Bag[count=" + to_string(this->count) + ";";
-        Node *head;
-        while (head != nullptr)
+        
+        for (Node* temp = head; temp != NULL; temp = temp->next)
         {
-            ans += head->item->str() + ",";
-            head = head->next;
+            ans += temp->item->str() + ",";
+            temp = temp->next;
         }
         return ans + "]";
     }
-    Node *remove(ItemType itemType);
+    // Node* remove(ItemType itemType)
 };
 
 class WatsonBag : public BaseBag
@@ -1336,12 +1396,24 @@ private:
 
 public:
     WatsonBag(){};
-    WatsonBag(Watson *watson);
+    WatsonBag(Watson* watson)
+    {
+        this->count = 0;
+        this->head = NULL;
+        this->obj = watson;
+    }
     Node *getHead()
     {
         return head;
     }
-    bool insert(BaseItem *item);
+    bool insert(BaseItem* item)
+    {
+        if (count >= capacity) return false;
+        Node* temp = new Node(item, head);
+        head = temp;
+        count++;
+        return true;
+    }
     BaseItem *get();
     BaseItem *get(ItemType itemType)
     {
@@ -1349,8 +1421,8 @@ public:
         {
             return nullptr;
         }
-        Node *current = head;
-        Node *prev = nullptr;
+        Node* current = head;
+        Node* prev = nullptr;
         while (current != nullptr)
         {
             if (current->item->getItemType() == itemType)
@@ -1358,39 +1430,41 @@ public:
                 if (prev == nullptr)
                 {
                     head = head->next;
-                    BaseItem *temp = current->item;
+                    BaseItem* temp = current->item;
+                    head->item = nullptr;
                     delete current;
-                    count--;
+                    this->count--;
                     return temp;
                 }
                 else
                 {
-                    BaseItem *temp = current->item;
+                    BaseItem* temp = current->item;
                     current->item = head->item;
-                    Node *tempNode = head;
+                    head->item = nullptr;
+                    Node* tempNode = head;
                     head = head->next;
                     delete tempNode;
                     count--;
                     return temp;
                 }
-                prev = current;
-                current = current->next;
             }
+            prev = current;
+            current = current->next;
         }
         return nullptr;
     }
     string str() const
     {
         string ans = "Bag[count=" + to_string(this->count) + ";";
-        Node *head;
-        while (head != nullptr)
+
+        for (Node* temp = head; temp != NULL; temp = temp->next)
         {
-            ans += head->item->str() + ",";
-            head = head->next;
+            ans += temp->item->str() + ",";
+            temp = temp->next;
         }
         return ans + "]";
     }
-    int deleteItem(ItemType itemType);
+    //int deleteItem(ItemType itemType);
 };
 class StudyPinkProgram
 {
@@ -1406,9 +1480,25 @@ private:
     ArrayMovingObject *arr_mv_objs;
 
 public:
-    StudyPinkProgram(const string &config_file_path);
+    StudyPinkProgram(const string& config_file_path)
+    {
+        config = new Configuration(config_file_path);
+        map = new Map(config->map_num_rows, config->map_num_cols, config->num_walls, config->arr_walls, config->num_fake_walls, config->arr_fake_walls);
+        sherlock = new Sherlock(1, config->sherlock_moving_rule, config->sherlock_init_pos, map, config->sherlock_init_hp, config->sherlock_init_exp);
+        watson = new Watson(2, config->watson_moving_rule, config->watson_init_pos, map, config->watson_init_hp, config->watson_init_exp);
+        criminal = new Criminal(0, config->criminal_init_pos, map, sherlock, watson);
+        this->arr_mv_objs->add(criminal);
+        this->arr_mv_objs->add(sherlock);
+        this->arr_mv_objs->add(watson);
+    }
 
-    bool isStop() const;
+    bool isStop() const
+    {
+        if (this->sherlock->getHP() == 0 || this->watson->getHP() == 0) return true;
+        if (sherlock->getCurrentPosition().isEqual(criminal->getCurrentPosition().getRow(), criminal->getCurrentPosition().getCol())) return true;
+        if (watson->getCurrentPosition().isEqual(criminal->getCurrentPosition().getRow(), criminal->getCurrentPosition().getCol())) return true;
+        return false;
+    }
 
     void printResult() const
     {
@@ -1451,6 +1541,10 @@ public:
                 {
                     printStep(istep);
                 }
+            }
+            if (isStop())
+            {
+                break;
             }
         }
         printResult();
