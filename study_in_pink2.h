@@ -62,7 +62,7 @@ enum RobotType
     S,
     W,
     SW
-};  
+};
 
 class MapElement
 {
@@ -137,7 +137,7 @@ public:
     int getReqExp() const override
     {
         return this->req_exp;
-    }   
+    }
 };
 
 class Map
@@ -147,15 +147,15 @@ private:
     MapElement ***map;
 
 public:
-    Map(int num_rows, int num_cols, int num_walls, Position* array_walls, int num_fake_walls, Position* array_fake_walls)
+    Map(int num_rows, int num_cols, int num_walls, Position *array_walls, int num_fake_walls, Position *array_fake_walls)
     {
         this->num_rows = num_rows;
         this->num_cols = num_cols;
 
-        map = new MapElement**[num_rows];
+        map = new MapElement **[num_rows];
         for (int i = 0; i < num_rows; i++)
         {
-            map[i] = new MapElement * [num_cols];
+            map[i] = new MapElement *[num_cols];
             for (int j = 0; j < num_cols; j++)
             {
                 map[i][j] = NULL;
@@ -170,14 +170,15 @@ public:
         for (int i = 0; i < num_fake_walls; i++)
         {
             Position pos = array_fake_walls[i];
-            int in_req_exp = (pos.getRow() *257 + pos.getCol() * 139 + 89) % 900 + 1;
+            int in_req_exp = (pos.getRow() * 257 + pos.getCol() * 139 + 89) % 900 + 1;
             map[pos.getRow()][pos.getCol()] = new FakeWall(in_req_exp);
         }
         for (int i = 0; i < num_rows; i++)
         {
             for (int j = 0; j < num_cols; j++)
             {
-                if (map[i][j] != NULL) map[i][j] = new Path;
+                if (map[i][j] != NULL)
+                    map[i][j] = new Path;
             }
         }
     }
@@ -201,14 +202,20 @@ public:
     {
         return this->num_cols;
     }
-    bool isValid(const Position& pos, MovingObject* mv_obj) const
+    bool isValid(const Position &pos, MovingObject *mv_obj) const
     {
-        if (pos.getRow() == -1 || pos.getRow() == this->num_rows) return false;
-        if (pos.getCol() == -1 || pos.getCol() == this->num_cols) return false;
-        if (map[pos.getRow()][pos.getCol()]->getType() == PATH) return true;
-        if (map[pos.getRow()][pos.getCol()]->getType() == WALL) return false;
-        if (mv_obj->getName() == "Sherlock" || mv_obj->getName() == "Criminal") return true;
-        if (mv_obj->getEXP() > map[pos.getRow()][pos.getCol()]->getReqExp()) return true;
+        if (pos.getRow() == -1 || pos.getRow() == this->num_rows)
+            return false;
+        if (pos.getCol() == -1 || pos.getCol() == this->num_cols)
+            return false;
+        if (map[pos.getRow()][pos.getCol()]->getType() == PATH)
+            return true;
+        if (map[pos.getRow()][pos.getCol()]->getType() == WALL)
+            return false;
+        if (mv_obj->getName() == "Sherlock" || mv_obj->getName() == "Criminal")
+            return true;
+        if (mv_obj->getEXP() > map[pos.getRow()][pos.getCol()]->getReqExp())
+            return true;
         return false;
     }
 };
@@ -217,6 +224,7 @@ class Position
 {
 private:
     int r, c;
+
 public:
     static const Position npos;
     Position(int r = 0, int c = 0)
@@ -225,7 +233,7 @@ public:
         this->c = c;
     }
     // str_pos = (12,342)
-    Position(const string& str_pos)
+    Position(const string &str_pos)
     {
         int comma = str_pos.find(',');
         int end = str_pos.find(')');
@@ -280,14 +288,14 @@ protected:
 public:
     virtual int getEXP() = 0;
     MovingObject(){}; // default constructor
-    MovingObject(int index, const Position pos, Map* map, const string& name = "")
+    MovingObject(int index, const Position pos, Map *map, const string &name = "")
     {
         this->index = index;
         this->pos = pos;
         this->map = map;
         this->name = name;
     }
-    
+
     Position getCurrentPosition() const
     {
         return this->pos;
@@ -300,7 +308,7 @@ public:
     {
         return name;
     }
-    void set_position(Position& pos)
+    void set_position(Position &pos)
     {
         this->pos.setRow(pos.getRow());
         this->pos.setCol(pos.getCol());
@@ -314,7 +322,6 @@ public:
     virtual void move() = 0;
     virtual string str() const = 0;
 
-    
 }; // abstract class
 
 class Character : public MovingObject
@@ -325,7 +332,7 @@ protected:
 
 public:
     Character(){}; // default constructor
-    Character(int index, const Position &pos, Map *map,int hp,int exp, string name) : MovingObject(index, pos, map, name)
+    Character(int index, const Position &pos, Map *map, int hp, int exp, string name) : MovingObject(index, pos, map, name)
     {
         setHP(hp);
         setEXP(exp);
@@ -354,12 +361,10 @@ private:
     // TODO
     string moving_rule;
     SherlockBag *bag;
-    // int next_char_ofrule;
     int start = -1;
 
-
 public:
-    Sherlock(int index, const string& moving_rule, const Position& init_pos, Map* map, int init_hp, int init_exp) : Character(index, init_pos, map, init_hp, init_exp, "Sherlock")
+    Sherlock(int index, const string &moving_rule, const Position &init_pos, Map *map, int init_hp, int init_exp) : Character(index, init_pos, map, init_hp, init_exp, "Sherlock")
     {
         this->moving_rule = moving_rule;
     }
@@ -386,7 +391,7 @@ public:
             next_cur.setCol(next_cur.getCol() - 1);
             return (map->isValid(next_cur, this) ? next_cur : next_cur.npos);
         }
-        else if(moving_rule[start] == 'R')
+        else if (moving_rule[start] == 'R')
         {
             Position next_cur = getCurrentPosition();
             next_cur.setCol(next_cur.getCol() + 1);
@@ -404,7 +409,6 @@ public:
             next_cur.setRow(next_cur.getRow() + 1);
             return (map->isValid(next_cur, this) ? next_cur : next_cur.npos);
         }
-        
     }
     SherlockBag *getBag()
     {
@@ -424,17 +428,56 @@ private:
     // TODO
     string moving_rule;
     WatsonBag *bag;
-    // int next_char_ofrule;
     // static const int start = 0;
+    int start = -1;
+
 public:
-    Watson(int index, const string &moving_rule, const Position &init_pos, Map *map, int init_hp, int init_exp);
-    // getNextPosition
-    // move
-    // str
-    // ...
-    string str() const override;
-    void move() override;
-    Position getNextPosition() override;
+    Watson(int index, const string &moving_rule, const Position &init_pos, Map *map, int init_hp, int init_exp) : Character(index, init_pos, map, init_hp, init_exp, "Watson")
+    {
+        this->moving_rule = moving_rule;
+    }
+
+    string str() const override
+    {
+        string ans = "Watson[index=" + to_string(this->index) + ";pos=" + this->pos.str() + ";moving_rule=" + this->moving_rule;
+    }
+    void move() override
+    {
+        Position next = getNextPosition();
+        if (next != next.npos)
+        {
+            this->set_position(next);
+        }
+    }
+    Position getNextPosition() override
+    {
+        int length = moving_rule.length();
+        start = (start + 1) % length;
+        if (moving_rule[start] == 'L')
+        {
+            Position next_cur = getCurrentPosition();
+            next_cur.setCol(next_cur.getCol() - 1);
+            return (map->isValid(next_cur, this) ? next_cur : next_cur.npos);
+        }
+        else if (moving_rule[start] == 'R')
+        {
+            Position next_cur = getCurrentPosition();
+            next_cur.setCol(next_cur.getCol() + 1);
+            return (map->isValid(next_cur, this) ? next_cur : next_cur.npos);
+        }
+        else if (moving_rule[start] == 'U')
+        {
+            Position next_cur = getCurrentPosition();
+            next_cur.setRow(next_cur.getRow() - 1);
+            return (map->isValid(next_cur, this) ? next_cur : next_cur.npos);
+        }
+        else if (moving_rule[start] == 'D')
+        {
+            Position next_cur = getCurrentPosition();
+            next_cur.setRow(next_cur.getRow() + 1);
+            return (map->isValid(next_cur, this) ? next_cur : next_cur.npos);
+        }
+    }
     WatsonBag *getBag()
     {
         return this->bag;
@@ -457,7 +500,7 @@ private:
     int step_count;
 
 public:
-    Criminal(int index, const Position& init_pos, Map* map, Sherlock* sherlock, Watson* watson): Character(index,init_pos,map,0,0,"Criminal")
+    Criminal(int index, const Position &init_pos, Map *map, Sherlock *sherlock, Watson *watson) : Character(index, init_pos, map, 0, 0, "Criminal")
     {
         this->sherlock = sherlock;
         this->watson = watson;
@@ -491,7 +534,7 @@ public:
         Position sher_cur = sherlock->getCurrentPosition();
         Position wat_cur = watson->getCurrentPosition();
         int l = 0, r = 0, u = 0, d = 0;
-        if (map->isValid(pri_up,this))
+        if (map->isValid(pri_up, this))
         {
             int dis_sher = get_distance(pri_up.getRow(), pri_up.getCol(), sher_cur.getRow(), sher_cur.getCol());
             int dis_wat = get_distance(pri_up.getRow(), pri_up.getCol(), wat_cur.getRow(), wat_cur.getCol());
@@ -532,10 +575,14 @@ public:
             ans = r;
             ch = 'r';
         }
-        if (ch == 'u') return pri_up;
-        else if( ch == 'l') return pri_left;
-        else if (ch == 'd') return pri_down;
-        else return pri_right;
+        if (ch == 'u')
+            return pri_up;
+        else if (ch == 'l')
+            return pri_left;
+        else if (ch == 'd')
+            return pri_down;
+        else
+            return pri_right;
     }
     Position getPrevPosition() const
     {
@@ -822,21 +869,21 @@ public:
     void use(Character *obj, Robot *robot) override;
 };
 
+struct Node
+{
+    BaseItem *item;
+    Node *next;
+
+    Node(BaseItem *item) : item(item), next(nullptr){};
+    Node(BaseItem *item, Node *next) : item(item), next(next){};
+};
+
 class BaseBag
 {
-private:
+protected:
     Character *obj;
 
 public:
-    struct Node
-    {
-        BaseItem *item;
-        Node *next;
-
-        Node(BaseItem *item) : item(item), next(nullptr){};
-        Node(BaseItem *item, Node *next) : item(item), next(next){};
-    };
-
     BaseBag(){};
     BaseBag(Character *obj)
     {
