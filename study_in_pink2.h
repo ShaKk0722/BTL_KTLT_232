@@ -72,12 +72,12 @@ protected:
     ElementType type;
 
 public:
-    MapElement() {}; // default constructor
+    MapElement(){}; // default constructor
     MapElement(ElementType in_type)
     {
         this->type = in_type;
     }
-    virtual ~MapElement() {};
+    virtual ~MapElement(){};
     ElementType getType() const
     {
         return this->type;
@@ -149,7 +149,7 @@ public:
         this->c = c;
     }
     // str_pos = (12,342)
-    Position(const string& str_pos)
+    Position(const string &str_pos)
     {
         int comma = str_pos.find(',');
         int end = str_pos.find(')');
@@ -159,11 +159,11 @@ public:
         this->c = stoi(c_value);
     }
 
-    bool operator!=(const Position& other) const
+    bool operator!=(const Position &other) const
     {
         return r != other.r || c != other.c;
     }
-    void operator=(const Position& other)
+    void operator=(const Position &other)
     {
         this->r = other.r;
         this->c = other.c;
@@ -200,7 +200,7 @@ class MovingObject
 protected:
     int index;
     Position pos;
-    Map* map;
+    Map *map;
     string name;
 
 public:
@@ -208,8 +208,8 @@ public:
     {
         return 0;
     }
-    MovingObject() {}; // default constructor
-    MovingObject(int index, const Position pos, Map* map, const string& name = "")
+    MovingObject(){}; // default constructor
+    MovingObject(int index, const Position pos, Map *map, const string &name = "")
     {
         this->index = index;
         this->pos = pos;
@@ -229,7 +229,7 @@ public:
     {
         return name;
     }
-    void set_position(Position& pos)
+    void set_position(Position &pos)
     {
         this->pos.setRow(pos.getRow());
         this->pos.setCol(pos.getCol());
@@ -237,7 +237,6 @@ public:
 
     virtual ~MovingObject()
     {
-        
     }
     virtual Position getNextPosition() = 0;
     virtual void move() = 0;
@@ -331,10 +330,6 @@ public:
     }
 };
 
-
-
-
-
 class Character : public MovingObject
 {
 protected:
@@ -381,7 +376,7 @@ public:
     }
     string str() const override
     {
-        string ans = "Sherlock[index=" + to_string(this->index) + ";pos=" + this->pos.str() + ";moving_rule=" + this->moving_rule +"]";
+        string ans = "Sherlock[index=" + to_string(this->index) + ";pos=" + this->pos.str() + ";moving_rule=" + this->moving_rule + "]";
         return ans;
     }
     void move() override
@@ -449,7 +444,7 @@ public:
 
     string str() const override
     {
-        string ans = "Watson[index=" + to_string(this->index) + ";pos=" + this->pos.str() + ";moving_rule=" + this->moving_rule+"]";
+        string ans = "Watson[index=" + to_string(this->index) + ";pos=" + this->pos.str() + ";moving_rule=" + this->moving_rule + "]";
         return ans;
     }
     void move() override
@@ -518,7 +513,7 @@ public:
     }
     string str() const override
     {
-        string ans = "Criminal[index=" + to_string(this->index) + ";pos=" + this->pos.str()+"]";
+        string ans = "Criminal[index=" + to_string(this->index) + ";pos=" + this->pos.str() + "]";
         return ans;
     }
     int get_distance(int x1, int y1, int x2, int y2)
@@ -613,7 +608,7 @@ public:
     {
         return this->step_count; // check mod 3
     }
-    Map* get_map()
+    Map *get_map()
     {
         return this->map;
     }
@@ -631,7 +626,7 @@ public:
     {
         this->capacity = capacity;
         this->count = 0;
-        this->arr_mv_objs = new MovingObject * [capacity];
+        this->arr_mv_objs = new MovingObject *[capacity];
         for (int i = 0; i < capacity; i++)
         {
             arr_mv_objs[i] = NULL;
@@ -645,9 +640,10 @@ public:
     {
         return (count == capacity);
     }
-    bool add(MovingObject* mv_obj)
+    bool add(MovingObject *mv_obj)
     {
-        if (this->isFull()) return false;
+        if (this->isFull())
+            return false;
         this->arr_mv_objs[count] = mv_obj;
         this->count++;
         return true;
@@ -689,13 +685,17 @@ private:
     int watson_init_exp;
     Position criminal_init_pos;
     int num_steps;
+
 public:
-    void Array(string value, Position*& arr, int& num) {
-        if (arr != nullptr) {
+    void Array(string value, Position *&arr, int &num)
+    {
+        if (arr != nullptr)
+        {
             arr = nullptr;
         }
         num = 0;
-        for (char ch : value) {
+        for (char ch : value)
+        {
             if (ch == '(')
                 num++;
         }
@@ -714,7 +714,7 @@ public:
             start = value.find('(');
         }
     }
-    void loadConfig(const string& str)
+    void loadConfig(const string &str)
     {
         int find_equal = str.find('=');
         string name = str.substr(0, find_equal);
@@ -784,29 +784,31 @@ public:
             cout << "Invalid name: " << name << endl;
         }
     }
-    Configuration(const string& filepath)
+    Configuration(const string &filepath)
     {
         ifstream file(filepath);
         string line;
-        while (getline(file, line)) {
+        while (getline(file, line))
+        {
             loadConfig(line);
         }
         file.close();
     }
     ~Configuration()
     {
-        //delete[] arr_fake_walls;
-        //delete[] arr_walls;
+        // delete[] arr_fake_walls;
+        // delete[] arr_walls;
     }
     string str() const
     {
         string ans = "Configuration[\n";
-        ans = ans + "MAP_NUM_ROWS=" + to_string(map_num_rows) +"\n";
+        ans = ans + "MAP_NUM_ROWS=" + to_string(map_num_rows) + "\n";
         ans = ans + "MAP_NUM_COLS=" + to_string(map_num_cols) + "\n";
         ans = ans + "MAX_NUM_MOVING_OBJECTS=" + to_string(max_num_moving_objects) + "\n";
         ans = ans + "NUM_WALLS=" + to_string(num_walls) + "\n";
         ans = ans + "ARRAY_WALLS=[";
-        if (num_walls > 0) ans = ans + arr_walls->str();
+        if (num_walls > 0)
+            ans = ans + arr_walls->str();
         for (int i = 1; i < num_walls; i++)
         {
             ans = ans + ";" + arr_walls[i].str();
@@ -814,7 +816,8 @@ public:
         ans = ans + "]\n";
         ans = ans + "NUM_FAKE_WALLS=" + to_string(num_fake_walls) + "\n";
         ans = ans + "ARRAY_FAKE_WALLS=[";
-        if (num_fake_walls > 0) ans = ans + arr_fake_walls->str();
+        if (num_fake_walls > 0)
+            ans = ans + arr_fake_walls->str();
         for (int i = 1; i < num_fake_walls; i++)
         {
             ans = ans + ";" + arr_fake_walls[i].str();
@@ -835,52 +838,67 @@ public:
     }
 };
 
-
-
-
-
-
-
 class BaseItem
 {
 private:
     ItemType type;
 
 public:
-    BaseItem(ItemType type) : type(type) {};
-    virtual bool canUse(Character* obj, Robot* robot) = 0;
-    virtual void use(Character* obj, Robot* robot) = 0;
+    BaseItem(ItemType type) : type(type){};
+    virtual bool canUse(Character *obj, Robot *robot) = 0;
+    virtual void use(Character *obj, Robot *robot) = 0;
+    int getItemType() const
+    {
+        return type;
+    }
+    virtual string str() = 0;
 };
 class MagicBook : public BaseItem
 {
 public:
-    MagicBook() : BaseItem(MAGIC_BOOK) {};
-    bool canUse(Character* obj, Robot* robot) override;
-    void use(Character* obj, Robot* robot) override;
+    MagicBook() : BaseItem(MAGIC_BOOK){};
+    bool canUse(Character *obj, Robot *robot) override;
+    void use(Character *obj, Robot *robot) override;
+    string str() override
+    {
+        return "MagicBook";
+    }
 };
 
 class EnergyDrink : public BaseItem
 {
 public:
-    EnergyDrink() : BaseItem(ENERGY_DRINK) {};
-    bool canUse(Character* obj, Robot* robot) override;
-    void use(Character* obj, Robot* robot) override;
+    EnergyDrink() : BaseItem(ENERGY_DRINK){};
+    bool canUse(Character *obj, Robot *robot) override;
+    void use(Character *obj, Robot *robot) override;
+    string str() override
+    {
+        return "EnergyDrink";
+    }
 };
 
 class FirstAid : public BaseItem
 {
 public:
-    FirstAid() : BaseItem(FIRST_AID) {};
-    bool canUse(Character* obj, Robot* robot) override;
-    void use(Character* obj, Robot* robot) override;
+    FirstAid() : BaseItem(FIRST_AID){};
+    bool canUse(Character *obj, Robot *robot) override;
+    void use(Character *obj, Robot *robot) override;
+    string str() override
+    {
+        return "FirstAid";
+    }
 };
 
 class ExcemptionCard : public BaseItem
 {
 public:
-    ExcemptionCard() : BaseItem(EXCEMPTION_CARD) {};
-    bool canUse(Character* obj, Robot* robot) override;
-    void use(Character* obj, Robot* robot) override;
+    ExcemptionCard() : BaseItem(EXCEMPTION_CARD){};
+    bool canUse(Character *obj, Robot *robot) override;
+    void use(Character *obj, Robot *robot) override;
+    string str() override
+    {
+        return "ExcemptionCard";
+    }
 };
 
 class PassingCard : public BaseItem
@@ -889,25 +907,14 @@ private:
     string chal;
 
 public:
-    PassingCard(string challenge) : chal(challenge), BaseItem(PASSING_CARD) {};
-    bool canUse(Character* obj, Robot* robot) override;
-    void use(Character* obj, Robot* robot) override;
+    PassingCard(string challenge) : chal(challenge), BaseItem(PASSING_CARD){};
+    bool canUse(Character *obj, Robot *robot) override;
+    void use(Character *obj, Robot *robot) override;
+    string str() override
+    {
+        return "PassingCard";
+    }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // Robot, BaseItem, BaseBag,...
 class Robot : public MovingObject
@@ -915,9 +922,10 @@ class Robot : public MovingObject
 protected:
     RobotType robottype;
     BaseItem *item;
+
 public:
     Robot(){};
-    Robot(RobotType robotType, int index, const Position& pos, Map* map, string name) : MovingObject(index, pos, map, name)
+    Robot(RobotType robotType, int index, const Position &pos, Map *map, string name) : MovingObject(index, pos, map, name)
     {
         this->robottype = robotType;
         int p = pos.getRow() * pos.getCol();
@@ -933,17 +941,25 @@ public:
             p = new_p;
             new_p = 0;
         }
-        if (p == 0 || p == 1) this->item = new MagicBook;
-        else if (p == 2 || p == 3) this->item = new EnergyDrink;
-        else if (p == 4 || p == 5) this->item = new FirstAid;
-        else if (p == 6 || p == 7) this->item = new ExcemptionCard;
+        if (p == 0 || p == 1)
+            this->item = new MagicBook;
+        else if (p == 2 || p == 3)
+            this->item = new EnergyDrink;
+        else if (p == 4 || p == 5)
+            this->item = new FirstAid;
+        else if (p == 6 || p == 7)
+            this->item = new ExcemptionCard;
         else
         {
             int t = (pos.getRow() * 11 + pos.getCol()) % 4;
-            if (t == 0) this->item = new PassingCard("RobotS");
-            else if (t == 1) this->item = new PassingCard("RobotC");
-            else if (t == 2) this->item = new PassingCard("RobotSW");
-            else this->item = new PassingCard("all");
+            if (t == 0)
+                this->item = new PassingCard("RobotS");
+            else if (t == 1)
+                this->item = new PassingCard("RobotC");
+            else if (t == 2)
+                this->item = new PassingCard("RobotSW");
+            else
+                this->item = new PassingCard("all");
         }
     }
 
@@ -968,7 +984,6 @@ public:
     {
         return this->robottype;
     }
-    
 };
 
 class RobotC : public Robot
@@ -978,7 +993,7 @@ private:
 
 public:
     RobotC(){};
-    RobotC (int index, const Position& pos, Map* map, Criminal* criminal) : Robot(C, index, pos, map, "RobotC")
+    RobotC(int index, const Position &pos, Map *map, Criminal *criminal) : Robot(C, index, pos, map, "RobotC")
     {
         this->criminal = criminal;
     }
@@ -1000,7 +1015,6 @@ public:
         Position next_cur = criminal->getPrevPosition();
         return (criminal->get_map()->isValid(next_cur, this) ? next_cur : next_cur.npos);
     }
-    
 };
 class RobotS : public Robot
 {
@@ -1010,12 +1024,19 @@ private:
 
 public:
     RobotS(){};
-    RobotS (int index, const Position& pos, Map* map, Criminal* criminal, Sherlock* sherlock) : Robot(S, index, pos, map, "RobotS")
+    RobotS(int index, const Position &pos, Map *map, Criminal *criminal, Sherlock *sherlock) : Robot(S, index, pos, map, "RobotS")
     {
         this->criminal = criminal;
         this->sherlock = sherlock;
     }
-    void move();
+    void move()
+    {
+        Position next = getNextPosition();
+        if (next != next.npos)
+        {
+            this->set_position(next);
+        }
+    }
     string str()
     {
         string ans = "Robot[pos=" + this->getCurrentPosition().str() + ";type=S" + ";dist=";
@@ -1025,7 +1046,67 @@ public:
     }
     Position getNextPosition()
     {
-        
+        Position pri_cur = this->getCurrentPosition();
+
+        Position pri_up = pri_cur;
+        pri_up.setRow(pri_cur.getRow() - 1);
+
+        Position pri_down = pri_cur;
+        pri_down.setRow(pri_cur.getRow() + 1);
+
+        Position pri_left = pri_cur;
+        pri_left.setCol(pri_cur.getCol() - 1);
+
+        Position pri_right = pri_cur;
+        pri_right.setCol(pri_cur.getCol() + 1);
+
+        Position sher_cur = sherlock->getCurrentPosition();
+        int l = 0, r = 0, u = 0, d = 0;
+        if (map->isValid(pri_up, this))
+        {
+            int dis_sher = calculateDistance(pri_up, sher_cur);
+            u = dis_sher;
+        }
+        if (map->isValid(pri_down, this))
+        {
+            int dis_sher = calculateDistance(pri_down, sher_cur);
+            d = dis_sher;
+        }
+        if (map->isValid(pri_left, this))
+        {
+            int dis_sher = calculateDistance(pri_left, sher_cur);
+            l = dis_sher;
+        }
+        if (map->isValid(pri_right, this))
+        {
+            int dis_sher = calculateDistance(pri_right, sher_cur);
+            r = dis_sher;
+        }
+        int ans = u;
+        char ch = 'u';
+        if (ans < r)
+        {
+            ans = r;
+            ch = 'r';
+        }
+        if (ans < d)
+        {
+            ans = d;
+            ch = 'd';
+        }
+        if (ans < l)
+        {
+            ans = l;
+            ch = 'l';
+        }
+        if (ch == 'u')
+            return pri_up;
+        else if (ch == 'r')
+            return pri_right;
+        else if (ch == 'd')
+            return pri_down;
+        else
+            return pri_left;
     }
 };
 class RobotW : public Robot
@@ -1037,7 +1118,14 @@ private:
 public:
     RobotW(){};
     RobotW(int index, const Position &pos, Map *map, Criminal *criminal, Watson *watson);
-    void move();
+    void move()
+    {
+        Position next = getNextPosition();
+        if (next != next.npos)
+        {
+            this->set_position(next);
+        }
+    }
     string str()
     {
         string ans = "Robot[pos=" + this->getCurrentPosition().str() + ";type=W" + ";dist=";
@@ -1047,7 +1135,67 @@ public:
     }
     Position getNextPosition()
     {
-        
+        Position pri_cur = this->getCurrentPosition();
+
+        Position pri_up = pri_cur;
+        pri_up.setRow(pri_cur.getRow() - 1);
+
+        Position pri_down = pri_cur;
+        pri_down.setRow(pri_cur.getRow() + 1);
+
+        Position pri_left = pri_cur;
+        pri_left.setCol(pri_cur.getCol() - 1);
+
+        Position pri_right = pri_cur;
+        pri_right.setCol(pri_cur.getCol() + 1);
+
+        Position wat_cur = watson->getCurrentPosition();
+        int l = 0, r = 0, u = 0, d = 0;
+        if (map->isValid(pri_up, this))
+        {
+            int dis_wat = calculateDistance(pri_up, wat_cur);
+            u = dis_wat;
+        }
+        if (map->isValid(pri_down, this))
+        {
+            int dis_wat = calculateDistance(pri_down, wat_cur);
+            d = dis_wat;
+        }
+        if (map->isValid(pri_left, this))
+        {
+            int dis_wat = calculateDistance(pri_left, wat_cur);
+            l = dis_wat;
+        }
+        if (map->isValid(pri_right, this))
+        {
+            int dis_wat = calculateDistance(pri_right, wat_cur);
+            r = dis_wat;
+        }
+        int ans = u;
+        char ch = 'u';
+        if (ans < r)
+        {
+            ans = r;
+            ch = 'r';
+        }
+        if (ans < d)
+        {
+            ans = d;
+            ch = 'd';
+        }
+        if (ans < l)
+        {
+            ans = l;
+            ch = 'l';
+        }
+        if (ch == 'u')
+            return pri_up;
+        else if (ch == 'r')
+            return pri_right;
+        else if (ch == 'd')
+            return pri_down;
+        else
+            return pri_left;
     }
 };
 class RobotSW : public Robot
@@ -1072,7 +1220,6 @@ public:
     }
     Position getNextPosition()
     {
-
     }
 };
 
@@ -1096,10 +1243,22 @@ public:
     {
         this->obj = obj;
     }
-    virtual bool insert(BaseItem *item);      // return true if insert successfully
-    virtual BaseItem *get();                  // return the item as described above , if not found, return NULL
-    virtual BaseItem *get(ItemType itemType); // return the item as described above , if not found , return NULL
-    virtual string str() const;
+    virtual bool insert(BaseItem *item)
+    {
+        return true;
+    } // return true if insert successfully
+    virtual BaseItem *get()
+    {
+        return nullptr;
+    } // return the item as described above , if not found, return NULL
+    virtual BaseItem *get(ItemType itemType)
+    {
+        return nullptr;
+    } // return the item as described above , if not found , return NULL
+    virtual string str() const
+    {
+        return "";
+    }
 };
 
 class SherlockBag : public BaseBag
@@ -1116,10 +1275,55 @@ public:
     {
         return this->head;
     }
-    bool insert(BaseItem *item) override;
-    BaseItem *get() override;
-    BaseItem *get(ItemType itemType) override;
-    string str() const override;
+    bool insert(BaseItem *item);
+    BaseItem *get();
+    BaseItem *get(ItemType itemType)
+    {
+        if (head == nullptr)
+        {
+            return nullptr;
+        }
+        Node *current = head;
+        Node *prev = nullptr;
+        while (current != nullptr)
+        {
+            if (current->item->getItemType() == itemType)
+            {
+                if (prev == nullptr)
+                {
+                    head = head->next;
+                    BaseItem *temp = current->item;
+                    delete current;
+                    count--;
+                    return temp;
+                }
+                else
+                {
+                    BaseItem *temp = current->item;
+                    current->item = head->item;
+                    Node *tempNode = head;
+                    head = head->next;
+                    delete tempNode;
+                    count--;
+                    return temp;
+                }
+                prev = current;
+                current = current->next;
+            }
+        }
+        return nullptr;
+    }
+    string str() const
+    {
+        string ans = "Bag[count=" + to_string(this->count) + ";";
+        Node *head;
+        while (head != nullptr)
+        {
+            ans += head->item->str() + ",";
+            head = head->next;
+        }
+        return ans + "]";
+    }
     Node *remove(ItemType itemType);
 };
 
@@ -1137,10 +1341,55 @@ public:
     {
         return head;
     }
-    bool insert(BaseItem *item) override;
-    BaseItem *get() override;
-    BaseItem *get(ItemType itemType) override;
-    string str() const override;
+    bool insert(BaseItem *item);
+    BaseItem *get();
+    BaseItem *get(ItemType itemType)
+    {
+        if (head == nullptr)
+        {
+            return nullptr;
+        }
+        Node *current = head;
+        Node *prev = nullptr;
+        while (current != nullptr)
+        {
+            if (current->item->getItemType() == itemType)
+            {
+                if (prev == nullptr)
+                {
+                    head = head->next;
+                    BaseItem *temp = current->item;
+                    delete current;
+                    count--;
+                    return temp;
+                }
+                else
+                {
+                    BaseItem *temp = current->item;
+                    current->item = head->item;
+                    Node *tempNode = head;
+                    head = head->next;
+                    delete tempNode;
+                    count--;
+                    return temp;
+                }
+                prev = current;
+                current = current->next;
+            }
+        }
+        return nullptr;
+    }
+    string str() const
+    {
+        string ans = "Bag[count=" + to_string(this->count) + ";";
+        Node *head;
+        while (head != nullptr)
+        {
+            ans += head->item->str() + ",";
+            head = head->next;
+        }
+        return ans + "]";
+    }
     int deleteItem(ItemType itemType);
 };
 class StudyPinkProgram
