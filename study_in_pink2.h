@@ -84,7 +84,6 @@ public:
     }
     virtual int getReqExp() const = 0;
 }; // abstract class
-
 class Path : public MapElement
 {
 public:
@@ -98,7 +97,6 @@ public:
         return -1;
     }
 };
-
 class Wall : public MapElement
 {
 public:
@@ -112,7 +110,6 @@ public:
         return -1;
     }
 };
-
 class FakeWall : public MapElement
 {
 private:
@@ -135,7 +132,6 @@ public:
         return this->req_exp;
     }
 };
-
 class Position
 {
 private:
@@ -427,7 +423,6 @@ public:
     bool meetWatson(Watson *watson);
     bool meetCrim(Criminal *criminal);
 };
-
 class Watson : public Character
 {
 private:
@@ -495,15 +490,14 @@ public:
     bool meetSherlock(Sherlock *sherlock);
     bool meetCrim(Criminal *criminal);
 };
-
 class Criminal : public Character
 {
 private:
     Sherlock *sherlock;
     Watson *watson;
     Position prev_pos;
-    // static int step_count;
     int step_count;
+    
 
 public:
     Criminal(int index, const Position &init_pos, Map *map, Sherlock *sherlock, Watson *watson) : Character(index, init_pos, map, 0, 0, "Criminal")
@@ -615,7 +609,6 @@ public:
         return this->map;
     }
 };
-
 class ArrayMovingObject
 {
 private:
@@ -664,7 +657,6 @@ public:
     }
     bool remove(MovingObject *mv_obj);
 };
-
 class Configuration
 {
     friend class StudyPinkProgram;
@@ -839,7 +831,6 @@ public:
         return ans;
     }
 };
-
 class BaseItem
 {
 private:
@@ -875,7 +866,6 @@ public:
         return "MagicBook";
     }
 };
-
 class EnergyDrink : public BaseItem
 {
 public:
@@ -896,7 +886,6 @@ public:
         return "EnergyDrink";
     }
 };
-
 class FirstAid : public BaseItem
 {
 public:
@@ -917,7 +906,6 @@ public:
         return "FirstAid";
     }
 };
-
 class ExcemptionCard : public BaseItem
 {
 public:
@@ -934,7 +922,6 @@ public:
         return "ExcemptionCard";
     }
 };
-
 class PassingCard : public BaseItem
 {
 private:
@@ -942,21 +929,8 @@ private:
 
 public:
     PassingCard(string challenge) : chal(challenge), BaseItem(PASSING_CARD){};
-    bool canUse(Character *obj, Robot *robot) override
-    {
-        return (obj->getName() == "Watson" && obj->getHP() % 2 != 0);
-    }
-    void use(Character *obj, Robot *robot) override
-    {
-        if (this->chal == "all")
-            return;
-        if (this->chal == robot->getName())
-            return;
-        if (obj->getEXP() >= 50)
-            obj->setEXP(obj->getEXP() - 50);
-        else
-            obj->setEXP(0);
-    }
+    bool canUse(Character* obj, Robot* robot) override;
+    void use(Character* obj, Robot* robot) override;
     string str() override
     {
         return "PassingCard";
@@ -1398,55 +1372,55 @@ public:
             return pri_cur.npos;
         }
         int ans = u;
-        char ch = 'u';
+        string ch = "u";
         if (ans < u_r)
         {
             ans = u_r;
-            ch = 'u_r';
+            ch = "u_r";
         }
         if (ans < r)
         {
             ans = r;
-            ch = 'r';
+            ch = "r";
         }
         if (ans < d_r)
         {
             ans = d_r;
-            ch = 'd_r';
+            ch = "d_r";
         }
         if (ans < d)
         {
             ans = d;
-            ch = 'd';
+            ch = "d";
         }
         if (ans < d_l)
         {
             ans = d_l;
-            ch = 'd_l';
+            ch = "d_l";
         }
         if (ans < l)
         {
             ans = l;
-            ch = 'l';
+            ch = "l";
         }
         if (ans < u_l)
         {
             ans = u_l;
-            ch = 'u_l';
+            ch = "u_l";
         }
-        if (ch == 'u')
+        if (ch == "u")
             return pri_up_up;
-        else if (ch == 'u_r')
+        else if (ch == "u_r")
             return pri_up_right;
-        else if (ch == 'r')
+        else if (ch == "r")
             return pri_right_right;
-        else if (ch == 'd_r')
+        else if (ch == "d_r")
             return pri_down_right;
-        else if (ch == 'd')
+        else if (ch == "d")
             return pri_down_down;
-        else if (ch == 'd_l')
+        else if (ch == "d_l")
             return pri_down_left;
-        else if (ch == 'l')
+        else if (ch == "l")
             return pri_left_left;
         else
             return pri_up_left;
@@ -1569,7 +1543,6 @@ public:
         }
         return ans + "]";
     }
-    // Node* remove(ItemType itemType)
 };
 
 class WatsonBag : public BaseBag

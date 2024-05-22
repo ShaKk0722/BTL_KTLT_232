@@ -57,6 +57,22 @@ const Position Position::npos = Position(-1, -1);
 // BaseBag - SherlockBag
 
 
+bool PassingCard::canUse(Character* obj, Robot* robot)
+{
+    return (obj->getName() == "Watson" && obj->getHP() % 2 != 0);
+}
+void PassingCard::use(Character* obj, Robot* robot)
+{
+    if (!canUse(obj, robot)) return;
+    if (this->chal == "all")
+        return;
+    if (this->chal == robot->getName())
+        return;
+    if (obj->getEXP() >= 50)
+        obj->setEXP(obj->getEXP() - 50);
+    else
+        obj->setEXP(0);
+}
 ////////////////////////////////////////////////
 /// END OF STUDENT'S ANSWER
 ////////////////////////////////////////////////
