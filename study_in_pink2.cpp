@@ -1321,7 +1321,7 @@ Position RobotSW::getNextPosition()
             if (u < ans)
             {
                 ans = u;
-                ch = 'u';
+                ch = "u";
             }
         }
     }
@@ -1335,7 +1335,7 @@ Position RobotSW::getNextPosition()
             if (u_r < ans)
             {
                 ans = u_r;
-                ch = 'u_r';
+                ch = "u_r";
             }
         }
     }
@@ -1349,7 +1349,7 @@ Position RobotSW::getNextPosition()
             if (r < ans)
             {
                 ans = r;
-                ch = 'r';
+                ch = "r";
             }
         }
     }
@@ -1363,7 +1363,7 @@ Position RobotSW::getNextPosition()
             if (d_r < ans)
             {
                 ans = d_r;
-                ch = 'd_r';
+                ch = "d_r";
             }
         }
     }
@@ -1377,7 +1377,7 @@ Position RobotSW::getNextPosition()
             if (d < ans)
             {
                 ans = d;
-                ch = 'd';
+                ch = "d";
             }
         }
     }
@@ -1391,7 +1391,7 @@ Position RobotSW::getNextPosition()
             if (d_l < ans)
             {
                 ans = d_l;
-                ch = 'd_l';
+                ch = "d_l";
             }
         }
     }
@@ -1405,7 +1405,7 @@ Position RobotSW::getNextPosition()
             if (l < ans)
             {
                 ans = l;
-                ch = 'l';
+                ch = "l";
             }
         }
     }
@@ -1419,7 +1419,7 @@ Position RobotSW::getNextPosition()
             if (u_l < ans)
             {
                 ans = u_l;
-                ch = 'u_l';
+                ch = "u_l";
             }
         }
     }
