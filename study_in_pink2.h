@@ -349,7 +349,7 @@ public:
     Robot();
     Robot(RobotType robotType, int index, const Position& pos, Map* map, string name);
     bool addtoArrayMovingObject(ArrayMovingObject& arr_moving);
-    int calculateDistance(Position other1, Position other2);
+    int calculateDistance(Position other1, Position other2) const;
     BaseItem* getItem() const;
     RobotType getRobotType() const;
 };
@@ -363,7 +363,7 @@ public:
     RobotC();
     RobotC(int index, const Position& pos, Map* map, Criminal* criminal);
     void move();
-    string str();
+    string str() const;
     Position getNextPosition();
 };
 class RobotS : public Robot
@@ -376,7 +376,7 @@ public:
     RobotS();
     RobotS(int index, const Position& pos, Map* map, Criminal* criminal, Sherlock* sherlock);
     void move();
-    string str();
+    string str() const;
     Position getNextPosition();
 };
 class RobotW : public Robot
@@ -389,7 +389,7 @@ public:
     RobotW();
     RobotW(int index, const Position &pos, Map *map, Criminal *criminal, Watson *watson);
     void move();
-    string str();
+    string str()const;
     Position getNextPosition();
 };
 class RobotSW : public Robot
@@ -403,7 +403,7 @@ public:
     RobotSW();
     RobotSW(int index, const Position &pos, Map *map, Criminal *criminal, Sherlock *sherlock, Watson *watson);
     void move();
-    string str();
+    string str() const;
     Position getNextPosition();
 };
 
@@ -619,13 +619,14 @@ private:
     ArrayMovingObject *arr_mv_objs;
 
 public:
-    StudyPinkProgram(const string &config_file_path)
+    StudyPinkProgram(const string& config_file_path)
     {
         config = new Configuration(config_file_path);
         map = new Map(config->map_num_rows, config->map_num_cols, config->num_walls, config->arr_walls, config->num_fake_walls, config->arr_fake_walls);
         sherlock = new Sherlock(1, config->sherlock_moving_rule, config->sherlock_init_pos, map, config->sherlock_init_hp, config->sherlock_init_exp);
         watson = new Watson(2, config->watson_moving_rule, config->watson_init_pos, map, config->watson_init_hp, config->watson_init_exp);
         criminal = new Criminal(0, config->criminal_init_pos, map, sherlock, watson);
+        arr_mv_objs = new ArrayMovingObject(config->max_num_moving_objects);
         this->arr_mv_objs->add(criminal);
         this->arr_mv_objs->add(sherlock);
         this->arr_mv_objs->add(watson);
@@ -671,36 +672,42 @@ public:
         // TODO
         for (int istep = 0; istep < config->num_steps; ++istep)
         {
-            for (int i = 0; i < arr_mv_objs->size(); ++i)
+            int n = arr_mv_objs->size();
+            for (int i = 0; i < n; i++)
             {
                 arr_mv_objs->get(i)->move();
                 if (arr_mv_objs->get(i)->getName() == "Criminal")
                 {
                     int index = arr_mv_objs->size();
                     Robot* temp = arr_mv_objs->get(i)->init_robot(index);
+                    if(temp != nullptr)
                     {
-                        if (!arr_mv_objs->add(temp)) delete temp;
+                        if (arr_mv_objs->add(temp) == false)
+                        {
+                            delete temp;
+                        }
                     }
-                }
-                if (isStop())
-                {
-                    printStep(istep);
-                    break;
-                }
-                if (verbose)
-                {
-                    printStep(istep);
                 }
             }
             if (isStop())
             {
+                printStep(istep);
                 break;
+            }
+            if (verbose)
+            {
+                cout << endl << endl;
+                cout << arr_mv_objs->str() << endl;
+                // printStep(istep);
             }
         }
         printResult();
     }
 
-    ~StudyPinkProgram();
+    ~StudyPinkProgram()
+    {
+
+    }
 };
 
 ////////////////////////////////////////////////

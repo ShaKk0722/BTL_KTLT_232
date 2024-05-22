@@ -496,49 +496,54 @@ Position Criminal::getNextPosition()
     Position sher_cur = sherlock->getCurrentPosition();
     Position wat_cur = watson->getCurrentPosition();
     int l = 0, r = 0, u = 0, d = 0;
+    int ans = -1000000;
+    char ch = 'u';
     if (map->isValid(pri_up, this))
     {
         int dis_sher = get_distance(pri_up.getRow(), pri_up.getCol(), sher_cur.getRow(), sher_cur.getCol());
         int dis_wat = get_distance(pri_up.getRow(), pri_up.getCol(), wat_cur.getRow(), wat_cur.getCol());
         u = dis_sher + dis_wat;
-    }
-    if (map->isValid(pri_down, this))
-    {
-        int dis_sher = get_distance(pri_down.getRow(), pri_down.getCol(), sher_cur.getRow(), sher_cur.getCol());
-        int dis_wat = get_distance(pri_down.getRow(), pri_down.getCol(), wat_cur.getRow(), wat_cur.getCol());
-        d = dis_sher + dis_wat;
+        if (u > ans)
+        {
+            ans = u;
+            ch = 'u';
+        }
     }
     if (map->isValid(pri_left, this))
     {
         int dis_sher = get_distance(pri_left.getRow(), pri_left.getCol(), sher_cur.getRow(), sher_cur.getCol());
         int dis_wat = get_distance(pri_left.getRow(), pri_left.getCol(), wat_cur.getRow(), wat_cur.getCol());
         l = dis_sher + dis_wat;
+        if (l > ans)
+        {
+            ans = l;
+            ch = 'l';
+        }
+    }
+    if (map->isValid(pri_down, this))
+    {
+        int dis_sher = get_distance(pri_down.getRow(), pri_down.getCol(), sher_cur.getRow(), sher_cur.getCol());
+        int dis_wat = get_distance(pri_down.getRow(), pri_down.getCol(), wat_cur.getRow(), wat_cur.getCol());
+        d = dis_sher + dis_wat;
+        if (d > ans)
+        {
+            ans = d;
+            ch = 'd';
+        }
     }
     if (map->isValid(pri_right, this))
     {
         int dis_sher = get_distance(pri_right.getRow(), pri_right.getCol(), sher_cur.getRow(), sher_cur.getCol());
         int dis_wat = get_distance(pri_right.getRow(), pri_right.getCol(), wat_cur.getRow(), wat_cur.getCol());
         r = dis_sher + dis_wat;
+        if (r > ans)
+        {
+            ans = r;
+            ch = 'r';
+        }
     }
-    if (u == 0 && d == 0 && l == 0 && r == 0)
+    if (ans == -1000000)
         return pri_cur.npos;
-    int ans = u;
-    char ch = 'u';
-    if (ans < l)
-    {
-        ans = l;
-        ch = 'l';
-    }
-    if (ans < d)
-    {
-        ans = d;
-        ch = 'd';
-    }
-    if (ans < r)
-    {
-        ans = r;
-        ch = 'r';
-    }
     if (ch == 'u')
         return pri_up;
     else if (ch == 'l')
@@ -567,16 +572,16 @@ Robot* Criminal::init_robot(int index)
     {
         first = true;
         step_count = 0;
-        return new RobotC(index, this->prev_pos, map, this);;
+        return new RobotC(index, this->prev_pos, map, this);
     }
     Position sher = sherlock->getCurrentPosition();
     Position wat = watson->getCurrentPosition();
     int dis_sher = get_distance(sher.getRow(), sher.getCol(), this->prev_pos.getRow(), this->prev_pos.getCol());
     int dis_wat = get_distance(wat.getRow(), wat.getCol(), this->prev_pos.getRow(), this->prev_pos.getCol());
     step_count = 0;
-    if (dis_sher > dis_wat)
+    if (dis_sher < dis_wat)
         return new RobotS(index, this->prev_pos, map, this, this->sherlock);
-    else if (dis_sher < dis_wat)
+    else if (dis_wat < dis_sher)
         return new RobotW(index, this->prev_pos, map, this, this->watson);
     return new RobotSW(index, this->prev_pos, map, this, this->sherlock, this->watson);
 }
@@ -627,7 +632,7 @@ string ArrayMovingObject::str() const
     string ans = "ArrayMovingObject[count=" + to_string(this->count) + ";capacity=" + to_string(this->capacity);
     for (int i = 0; i < count; i++)
     {
-        ans = ans + ";" + this->arr_mv_objs[i]->str();
+        if(this->arr_mv_objs[i]!=nullptr) ans = ans + ";" + this->arr_mv_objs[i]->str();
     }
     ans = ans + "]";
     return ans;
@@ -991,7 +996,7 @@ bool Robot::addtoArrayMovingObject(ArrayMovingObject& arr_moving)
     }
     return false;
 }
-int Robot::calculateDistance(Position other1, Position other2)
+int Robot::calculateDistance(Position other1, Position other2) const
 {
     return abs(other1.getCol() - other2.getCol()) + abs(other1.getRow() - other2.getRow());
 }
@@ -1023,7 +1028,7 @@ void RobotC::move()
         this->set_position(next);
     }
 }
-string RobotC::str()
+string RobotC::str() const
 {
     string ans = "Robot[pos=" + this->getCurrentPosition().str() + ";type=C" + ";dist=]";
     return ans;
@@ -1056,7 +1061,7 @@ void RobotS::move()
         this->set_position(next);
     }
 }
-string RobotS::str()
+string RobotS::str() const
 {
     string ans = "Robot[pos=" + this->getCurrentPosition().str() + ";type=S" + ";dist=";
     int distance = this->calculateDistance(this->getCurrentPosition(), sherlock->getCurrentPosition());
@@ -1069,7 +1074,6 @@ Position RobotS::getNextPosition()
 
     Position pri_up = pri_cur;
     pri_up.setRow(pri_cur.getRow() - 1);
-
     Position pri_down = pri_cur;
     pri_down.setRow(pri_cur.getRow() + 1);
 
@@ -1081,45 +1085,47 @@ Position RobotS::getNextPosition()
 
     Position sher_cur = sherlock->getCurrentPosition();
     int l = 0, r = 0, u = 0, d = 0;
+    int ans = 1000000;
+    char ch = 'u';
     if (map->isValid(pri_up, this))
     {
-        int dis_sher = calculateDistance(pri_up, sher_cur);
-        u = dis_sher;
-    }
-    if (map->isValid(pri_down, this))
-    {
-        int dis_sher = calculateDistance(pri_down, sher_cur);
-        d = dis_sher;
+        u = calculateDistance(pri_up, sher_cur);
+        if (u < ans)
+        {
+            ans = u;
+            ch = 'u';
+        }
     }
     if (map->isValid(pri_left, this))
     {
-        int dis_sher = calculateDistance(pri_left, sher_cur);
-        l = dis_sher;
+        l = calculateDistance(pri_left, sher_cur);
+        if (l < ans)
+        {
+            ans = l;
+            ch = 'l';
+        }
     }
+    if (map->isValid(pri_down, this))
+    {
+        d = calculateDistance(pri_down, sher_cur);
+        if (d < ans)
+        {
+            ans = d;
+            ch = 'd';
+        }
+    }
+    
     if (map->isValid(pri_right, this))
     {
-        int dis_sher = calculateDistance(pri_right, sher_cur);
-        r = dis_sher;
+        r = calculateDistance(pri_right, sher_cur);
+        if (r < ans)
+        {
+            ans = r;
+            ch = 'r';
+        }
     }
-    if (u == 0 && d == 0 && l == 0 && r == 0)
+    if (ans == 1000000)
         return pri_cur.npos;
-    int ans = u;
-    char ch = 'u';
-    if (ans < r)
-    {
-        ans = r;
-        ch = 'r';
-    }
-    if (ans < d)
-    {
-        ans = d;
-        ch = 'd';
-    }
-    if (ans < l)
-    {
-        ans = l;
-        ch = 'l';
-    }
     if (ch == 'u')
         return pri_up;
     else if (ch == 'r')
@@ -1160,7 +1166,7 @@ void RobotW::move()
         this->set_position(next);
     }
 }
-string RobotW::str()
+string RobotW::str() const
 {
     string ans = "Robot[pos=" + this->getCurrentPosition().str() + ";type=W" + ";dist=";
     int distance = this->calculateDistance(this->getCurrentPosition(), watson->getCurrentPosition());
@@ -1173,7 +1179,6 @@ Position RobotW::getNextPosition()
 
     Position pri_up = pri_cur;
     pri_up.setRow(pri_cur.getRow() - 1);
-
     Position pri_down = pri_cur;
     pri_down.setRow(pri_cur.getRow() + 1);
 
@@ -1185,45 +1190,47 @@ Position RobotW::getNextPosition()
 
     Position wat_cur = watson->getCurrentPosition();
     int l = 0, r = 0, u = 0, d = 0;
+    int ans = 1000000;
+    char ch = 'u';
     if (map->isValid(pri_up, this))
     {
-        int dis_wat = calculateDistance(pri_up, wat_cur);
-        u = dis_wat;
-    }
-    if (map->isValid(pri_down, this))
-    {
-        int dis_wat = calculateDistance(pri_down, wat_cur);
-        d = dis_wat;
+        u = calculateDistance(pri_up, wat_cur);
+        if (u < ans)
+        {
+            ans = u;
+            ch = 'u';
+        }
     }
     if (map->isValid(pri_left, this))
     {
-        int dis_wat = calculateDistance(pri_left, wat_cur);
-        l = dis_wat;
+        l = calculateDistance(pri_left, wat_cur);
+        if (l < ans)
+        {
+            ans = l;
+            ch = 'l';
+        }
     }
+    if (map->isValid(pri_down, this))
+    {
+        d = calculateDistance(pri_down, wat_cur);
+        if (d < ans)
+        {
+            ans = d;
+            ch = 'd';
+        }
+    }
+
     if (map->isValid(pri_right, this))
     {
-        int dis_wat = calculateDistance(pri_right, wat_cur);
-        r = dis_wat;
+        r = calculateDistance(pri_right, wat_cur);
+        if (r < ans)
+        {
+            ans = r;
+            ch = 'r';
+        }
     }
-    if (u == 0 && d == 0 && l == 0 && r == 0)
+    if (ans == 1000000)
         return pri_cur.npos;
-    int ans = u;
-    char ch = 'u';
-    if (ans < r)
-    {
-        ans = r;
-        ch = 'r';
-    }
-    if (ans < d)
-    {
-        ans = d;
-        ch = 'd';
-    }
-    if (ans < l)
-    {
-        ans = l;
-        ch = 'l';
-    }
     if (ch == 'u')
         return pri_up;
     else if (ch == 'r')
@@ -1257,7 +1264,7 @@ void RobotSW::move()
         this->set_position(next);
     }
 }
-string RobotSW::str()
+string RobotSW::str() const
 {
     string ans = "Robot[pos=" + this->getCurrentPosition().str() + ";type=SW" + ";dist=";
     int sher = this->calculateDistance(this->getCurrentPosition(), sherlock->getCurrentPosition());
@@ -1389,37 +1396,37 @@ Position RobotSW::getNextPosition()
     }
     int ans = u;
     string ch = "u";
-    if (ans < u_r)
+    if (u_r < ans && u_r != 0)
     {
         ans = u_r;
         ch = "u_r";
     }
-    if (ans < r)
+    if (r < ans && r != 0)
     {
         ans = r;
         ch = "r";
     }
-    if (ans < d_r)
+    if (d_r < ans && d_r != 0)
     {
         ans = d_r;
         ch = "d_r";
     }
-    if (ans < d)
+    if (d < ans && d != 0)
     {
         ans = d;
         ch = "d";
     }
-    if (ans < d_l)
+    if (d_l < ans && d_l != 0)
     {
         ans = d_l;
         ch = "d_l";
     }
-    if (ans < l)
+    if (l < ans && l != 0)
     {
         ans = l;
         ch = "l";
     }
-    if (ans < u_l)
+    if (u_l < ans && u_l != 0)
     {
         ans = u_l;
         ch = "u_l";
