@@ -405,7 +405,7 @@ public:
             next_cur.setRow(next_cur.getRow() - 1);
             return (map->isValid(next_cur, this) ? next_cur : next_cur.npos);
         }
-        else if (moving_rule[start] == 'D')
+        else
         {
             Position next_cur = getCurrentPosition();
             next_cur.setRow(next_cur.getRow() + 1);
@@ -472,7 +472,7 @@ public:
             next_cur.setRow(next_cur.getRow() - 1);
             return (map->isValid(next_cur, this) ? next_cur : next_cur.npos);
         }
-        else if (moving_rule[start] == 'D')
+        else
         {
             Position next_cur = getCurrentPosition();
             next_cur.setRow(next_cur.getRow() + 1);
