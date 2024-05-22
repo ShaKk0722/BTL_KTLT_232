@@ -104,6 +104,10 @@ bool Position::isEqual(int in_r, int in_c) const
 {
     return (this->r == in_r && this->c == in_c);
 }
+bool Position::isEqual(Position other) const
+{
+    return (this->r == other.r && this->c == other.c);
+}
 
 // MovingObject
 int MovingObject::getEXP() const
@@ -1033,6 +1037,13 @@ RobotType Robot::getRobotType() const
 {
     return this->robottype;
 }
+int Robot::getDistance(Character* obj) const
+{
+    return calculateDistance(this->getCurrentPosition(), obj->getCurrentPosition());
+}
+
+
+
 
 // Robot - RobotC
 RobotC::RobotC(){};

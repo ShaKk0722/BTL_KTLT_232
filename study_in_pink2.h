@@ -117,6 +117,7 @@ public:
     void setCol(int c);
     string str() const;
     bool isEqual(int in_r, int in_c) const;
+    bool isEqual(Position other) const;
 };
 class MovingObject
 {
@@ -354,8 +355,8 @@ public:
     int calculateDistance(Position other1, Position other2) const;
     BaseItem *getItem() const;
     RobotType getRobotType() const;
+    int getDistance(Character* obj) const;
 };
-
 class RobotC : public Robot
 {
 private:
@@ -623,6 +624,7 @@ public:
     ~StudyPinkProgram()
     {
     }
+    
 };
 
 ////////////////////////////////////////////////
