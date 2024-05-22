@@ -108,9 +108,9 @@ private:
 public:
     static const Position npos;
     Position(int r = 0, int c = 0);
-    Position(const string& str_pos);
-    bool operator!=(const Position& other) const;
-    void operator=(const Position& other);
+    Position(const string &str_pos);
+    bool operator!=(const Position &other) const;
+    void operator=(const Position &other);
     int getRow() const;
     int getCol() const;
     void setRow(int r);
@@ -129,21 +129,19 @@ protected:
 public:
     virtual int getEXP() const;
     MovingObject(); // default constructor
-    MovingObject(int index, const Position pos, Map* map, const string& name = "");
+    MovingObject(int index, const Position pos, Map *map, const string &name = "");
     Position getCurrentPosition() const;
     int getIndex() const;
     string getName() const;
-    void set_position(Position& pos);
+    void set_position(Position &pos);
 
     virtual ~MovingObject();
     virtual Position getNextPosition() = 0;
     virtual void move() = 0;
     virtual string str() const;
-    virtual Robot* init_robot(int index);
+    virtual Robot *init_robot(int index);
 
 }; // abstract class
-
-
 
 class Map
 {
@@ -152,11 +150,11 @@ private:
     MapElement ***map;
 
 public:
-    Map(int num_rows, int num_cols, int num_walls, Position* array_walls, int num_fake_walls, Position* array_fake_walls);
+    Map(int num_rows, int num_cols, int num_walls, Position *array_walls, int num_fake_walls, Position *array_fake_walls);
     ~Map();
     int getNumRows() const;
     int getNumCols() const;
-    bool isValid(const Position& pos, MovingObject* mv_obj) const;
+    bool isValid(const Position &pos, MovingObject *mv_obj) const;
 };
 
 class Character : public MovingObject
@@ -167,7 +165,7 @@ protected:
 
 public:
     Character(); // default constructor
-    Character(int index, const Position& pos, Map* map, int hp, int exp, string name);
+    Character(int index, const Position &pos, Map *map, int hp, int exp, string name);
     int getHP() const;
     int getEXP() const;
     void setHP(int hp);
@@ -182,11 +180,11 @@ private:
     int start = -1;
 
 public:
-    Sherlock(int index, const string& moving_rule, const Position& init_pos, Map* map, int init_hp, int init_exp);
+    Sherlock(int index, const string &moving_rule, const Position &init_pos, Map *map, int init_hp, int init_exp);
     string str() const override;
     void move() override;
     Position getNextPosition() override;
-    SherlockBag* getBag();
+    SherlockBag *getBag();
     bool meetC(RobotC *robotC);
     bool meetS(RobotS *robotS);
     bool meetW(RobotW *robotW);
@@ -203,11 +201,11 @@ private:
     int start = -1;
 
 public:
-    Watson(int index, const string& moving_rule, const Position& init_pos, Map* map, int init_hp, int init_exp);
+    Watson(int index, const string &moving_rule, const Position &init_pos, Map *map, int init_hp, int init_exp);
     string str() const override;
     void move() override;
     Position getNextPosition() override;
-    WatsonBag* getBag();
+    WatsonBag *getBag();
     bool meetC(RobotC *robotC);
     bool meetS(RobotS *robotS);
     bool meetW(RobotW *robotW);
@@ -225,16 +223,15 @@ private:
     bool first;
 
 public:
-    Criminal(int index, const Position& init_pos, Map* map, Sherlock* sherlock, Watson* watson);
+    Criminal(int index, const Position &init_pos, Map *map, Sherlock *sherlock, Watson *watson);
     string str() const override;
     int get_distance(int x1, int y1, int x2, int y2);
     void move() override;
     Position getNextPosition() override;
     Position getPrevPosition() const;
     int getStepCount() const;
-    Map* get_map();
-    Robot* init_robot(int index);
-    
+    Map *get_map();
+    Robot *init_robot(int index);
 };
 class ArrayMovingObject
 {
@@ -247,10 +244,10 @@ public:
     ArrayMovingObject(int capacity);
     ~ArrayMovingObject();
     bool isFull() const;
-    bool add(MovingObject* mv_obj);
+    bool add(MovingObject *mv_obj);
     int size() const;
     string str() const;
-    MovingObject* get(int index) const;
+    MovingObject *get(int index) const;
     bool remove(MovingObject *mv_obj);
 };
 class Configuration
@@ -277,8 +274,8 @@ private:
     int num_steps;
 
 public:
-    void loadConfig(const string& str);
-    Configuration(const string& filepath);
+    void loadConfig(const string &str);
+    Configuration(const string &filepath);
     ~Configuration();
     string str() const;
 };
@@ -298,32 +295,32 @@ class MagicBook : public BaseItem
 {
 public:
     MagicBook();
-    bool canUse(Character* obj, Robot* robot) override;
-    void use(Character* obj, Robot* robot) override;
+    bool canUse(Character *obj, Robot *robot) override;
+    void use(Character *obj, Robot *robot) override;
     string str() override;
 };
 class EnergyDrink : public BaseItem
 {
 public:
     EnergyDrink();
-    bool canUse(Character* obj, Robot* robot) override;
-    void use(Character* obj, Robot* robot) override;
+    bool canUse(Character *obj, Robot *robot) override;
+    void use(Character *obj, Robot *robot) override;
     string str() override;
 };
 class FirstAid : public BaseItem
 {
 public:
     FirstAid();
-    bool canUse(Character* obj, Robot* robot) override;
-    void use(Character* obj, Robot* robot) override;
+    bool canUse(Character *obj, Robot *robot) override;
+    void use(Character *obj, Robot *robot) override;
     string str() override;
 };
 class ExcemptionCard : public BaseItem
 {
 public:
     ExcemptionCard();
-    bool canUse(Character* obj, Robot* robot) override;
-    void use(Character* obj, Robot* robot) override;
+    bool canUse(Character *obj, Robot *robot) override;
+    void use(Character *obj, Robot *robot) override;
     string str() override;
 };
 class PassingCard : public BaseItem
@@ -333,8 +330,8 @@ private:
 
 public:
     PassingCard(string challenge) : chal(challenge), BaseItem(PASSING_CARD){};
-    bool canUse(Character* obj, Robot* robot) override;
-    void use(Character* obj, Robot* robot) override;
+    bool canUse(Character *obj, Robot *robot) override;
+    void use(Character *obj, Robot *robot) override;
     string str() override;
 };
 
@@ -347,10 +344,10 @@ protected:
 
 public:
     Robot();
-    Robot(RobotType robotType, int index, const Position& pos, Map* map, string name);
-    bool addtoArrayMovingObject(ArrayMovingObject& arr_moving);
+    Robot(RobotType robotType, int index, const Position &pos, Map *map, string name);
+    bool addtoArrayMovingObject(ArrayMovingObject &arr_moving);
     int calculateDistance(Position other1, Position other2) const;
-    BaseItem* getItem() const;
+    BaseItem *getItem() const;
     RobotType getRobotType() const;
 };
 
@@ -361,7 +358,7 @@ private:
 
 public:
     RobotC();
-    RobotC(int index, const Position& pos, Map* map, Criminal* criminal);
+    RobotC(int index, const Position &pos, Map *map, Criminal *criminal);
     void move();
     string str() const;
     Position getNextPosition();
@@ -374,7 +371,7 @@ private:
 
 public:
     RobotS();
-    RobotS(int index, const Position& pos, Map* map, Criminal* criminal, Sherlock* sherlock);
+    RobotS(int index, const Position &pos, Map *map, Criminal *criminal, Sherlock *sherlock);
     void move();
     string str() const;
     Position getNextPosition();
@@ -389,7 +386,7 @@ public:
     RobotW();
     RobotW(int index, const Position &pos, Map *map, Criminal *criminal, Watson *watson);
     void move();
-    string str()const;
+    string str() const;
     Position getNextPosition();
 };
 class RobotSW : public Robot
@@ -422,27 +419,12 @@ protected:
     Character *obj;
 
 public:
-    BaseBag(){};
-    BaseBag(Character *obj)
-    {
-        this->obj = obj;
-    }
-    virtual bool insert(BaseItem *item)
-    {
-        return true;
-    }
-    virtual BaseItem *get()
-    {
-        return nullptr;
-    } // return the item as described above , if not found, return NULL
-    virtual BaseItem *get(ItemType itemType)
-    {
-        return nullptr;
-    } // return the item as described above , if not found , return NULL
-    virtual string str() const
-    {
-        return "";
-    }
+    BaseBag();
+    BaseBag(Character *obj);
+    virtual bool insert(BaseItem *item);
+    virtual BaseItem *get();                  // return the item as described above , if not found, return NULL
+    virtual BaseItem *get(ItemType itemType); // return the item as described above , if not found , return NULL
+    virtual string str() const;
 };
 
 class SherlockBag : public BaseBag
@@ -453,76 +435,13 @@ private:
     int count;
 
 public:
-    SherlockBag(){};
-    SherlockBag(Sherlock *sherlock)
-    {
-        this->count = 0;
-        this->head = NULL;
-        this->obj = sherlock;
-    }
-    Node *getHead()
-    {
-        return this->head;
-    }
-    bool insert(BaseItem *item)
-    {
-        if (count >= capacity)
-            return false;
-        Node *temp = new Node(item, head);
-        head = temp;
-        count++;
-        return true;
-    }
+    SherlockBag();
+    SherlockBag(Sherlock *sherlock);
+    Node *getHead();
+    bool insert(BaseItem *item);
     BaseItem *get();
-    BaseItem *get(ItemType itemType)
-    {
-        if (head == nullptr)
-        {
-            return nullptr;
-        }
-        Node *current = head;
-        Node *prev = nullptr;
-        while (current != nullptr)
-        {
-            if (current->item->getItemType() == itemType)
-            {
-                if (prev == nullptr)
-                {
-                    head = head->next;
-                    BaseItem *temp = current->item;
-                    head->item = nullptr;
-                    delete current;
-                    this->count--;
-                    return temp;
-                }
-                else
-                {
-                    BaseItem *temp = current->item;
-                    current->item = head->item;
-                    head->item = nullptr;
-                    Node *tempNode = head;
-                    head = head->next;
-                    delete tempNode;
-                    count--;
-                    return temp;
-                }
-            }
-            prev = current;
-            current = current->next;
-        }
-        return nullptr;
-    }
-    string str() const
-    {
-        string ans = "Bag[count=" + to_string(this->count) + ";";
-
-        for (Node *temp = head; temp != NULL; temp = temp->next)
-        {
-            ans += temp->item->str() + ",";
-            temp = temp->next;
-        }
-        return ans + "]";
-    }
+    BaseItem *get(ItemType itemType);
+    string str() const;
 };
 
 class WatsonBag : public BaseBag
@@ -533,77 +452,13 @@ private:
     int count;
 
 public:
-    WatsonBag(){};
-    WatsonBag(Watson *watson)
-    {
-        this->count = 0;
-        this->head = NULL;
-        this->obj = watson;
-    }
-    Node *getHead()
-    {
-        return head;
-    }
-    bool insert(BaseItem *item)
-    {
-        if (count >= capacity)
-            return false;
-        Node *temp = new Node(item, head);
-        head = temp;
-        count++;
-        return true;
-    }
+    WatsonBag();
+    WatsonBag(Watson *watson);
+    Node *getHead();
+    bool insert(BaseItem *item);
     BaseItem *get();
-    BaseItem *get(ItemType itemType)
-    {
-        if (head == nullptr)
-        {
-            return nullptr;
-        }
-        Node *current = head;
-        Node *prev = nullptr;
-        while (current != nullptr)
-        {
-            if (current->item->getItemType() == itemType)
-            {
-                if (prev == nullptr)
-                {
-                    head = head->next;
-                    BaseItem *temp = current->item;
-                    head->item = nullptr;
-                    delete current;
-                    this->count--;
-                    return temp;
-                }
-                else
-                {
-                    BaseItem *temp = current->item;
-                    current->item = head->item;
-                    head->item = nullptr;
-                    Node *tempNode = head;
-                    head = head->next;
-                    delete tempNode;
-                    count--;
-                    return temp;
-                }
-            }
-            prev = current;
-            current = current->next;
-        }
-        return nullptr;
-    }
-    string str() const
-    {
-        string ans = "Bag[count=" + to_string(this->count) + ";";
-
-        for (Node *temp = head; temp != NULL; temp = temp->next)
-        {
-            ans += temp->item->str() + ",";
-            temp = temp->next;
-        }
-        return ans + "]";
-    }
-    // int deleteItem(ItemType itemType);
+    BaseItem *get(ItemType itemType);
+    string str() const;
 };
 class StudyPinkProgram
 {
@@ -619,7 +474,7 @@ private:
     ArrayMovingObject *arr_mv_objs;
 
 public:
-    StudyPinkProgram(const string& config_file_path)
+    StudyPinkProgram(const string &config_file_path)
     {
         config = new Configuration(config_file_path);
         map = new Map(config->map_num_rows, config->map_num_cols, config->num_walls, config->arr_walls, config->num_fake_walls, config->arr_fake_walls);
@@ -679,8 +534,8 @@ public:
                 if (arr_mv_objs->get(i)->getName() == "Criminal")
                 {
                     int index = arr_mv_objs->size();
-                    Robot* temp = arr_mv_objs->get(i)->init_robot(index);
-                    if(temp != nullptr)
+                    Robot *temp = arr_mv_objs->get(i)->init_robot(index);
+                    if (temp != nullptr)
                     {
                         if (arr_mv_objs->add(temp) == false)
                         {
@@ -696,7 +551,8 @@ public:
             }
             if (verbose)
             {
-                cout << endl << endl;
+                cout << endl
+                     << endl;
                 cout << arr_mv_objs->str() << endl;
                 // printStep(istep);
             }
@@ -706,7 +562,6 @@ public:
 
     ~StudyPinkProgram()
     {
-
     }
 };
 

@@ -18,12 +18,6 @@ ElementType MapElement::getType() const
     return this->type;
 }
 
-
-
-
-
-
-
 // MapElement - Path
 Path::Path()
 {
@@ -34,12 +28,6 @@ int Path::getReqExp() const
     return -1;
 }
 
-
-
-
-
-
-
 // MapElement - Wall
 Wall::Wall()
 {
@@ -49,14 +37,6 @@ int Wall::getReqExp() const
 {
     return -1;
 }
-
-
-
-
-
-
-
-
 
 // MapElement - FakeWall
 FakeWall::FakeWall()
@@ -74,19 +54,13 @@ int FakeWall::getReqExp() const
     return this->req_exp;
 }
 
-
-
-
-
-
-
 // Position
 Position::Position(int r, int c)
 {
     this->r = r;
     this->c = c;
 }
-Position::Position(const string& str_pos)
+Position::Position(const string &str_pos)
 {
     int comma = str_pos.find(',');
     int end = str_pos.find(')');
@@ -96,11 +70,11 @@ Position::Position(const string& str_pos)
     this->c = stoi(c_value);
 }
 
-bool Position::operator!=(const Position& other) const
+bool Position::operator!=(const Position &other) const
 {
     return r != other.r || c != other.c;
 }
-void Position::operator=(const Position& other)
+void Position::operator=(const Position &other)
 {
     this->r = other.r;
     this->c = other.c;
@@ -131,24 +105,13 @@ bool Position::isEqual(int in_r, int in_c) const
     return (this->r == in_r && this->c == in_c);
 }
 
-
-
-
-
-
-
-
-
-
-
-
 // MovingObject
 int MovingObject::getEXP() const
 {
     return 0;
 }
-MovingObject::MovingObject() {}; // default constructor
-MovingObject::MovingObject(int index, const Position pos, Map* map, const string& name)
+MovingObject::MovingObject(){}; // default constructor
+MovingObject::MovingObject(int index, const Position pos, Map *map, const string &name)
 {
     this->index = index;
     this->pos = pos;
@@ -167,50 +130,33 @@ string MovingObject::getName() const
 {
     return name;
 }
-void MovingObject::set_position(Position& pos)
+void MovingObject::set_position(Position &pos)
 {
     this->pos.setRow(pos.getRow());
     this->pos.setCol(pos.getCol());
 }
- MovingObject::~MovingObject()
+MovingObject::~MovingObject()
 {
 }
 string MovingObject::str() const
 {
     return "empty";
 }
-Robot* MovingObject::init_robot(int index)
+Robot *MovingObject::init_robot(int index)
 {
     return nullptr;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Map
-Map::Map(int num_rows, int num_cols, int num_walls, Position* array_walls, int num_fake_walls, Position* array_fake_walls)
+Map::Map(int num_rows, int num_cols, int num_walls, Position *array_walls, int num_fake_walls, Position *array_fake_walls)
 {
     this->num_rows = num_rows;
     this->num_cols = num_cols;
 
-    map = new MapElement * *[num_rows];
+    map = new MapElement **[num_rows];
     for (int i = 0; i < num_rows; i++)
     {
-        map[i] = new MapElement * [num_cols];
+        map[i] = new MapElement *[num_cols];
         for (int j = 0; j < num_cols; j++)
         {
             map[i][j] = NULL;
@@ -259,7 +205,7 @@ int Map::getNumCols() const
 {
     return this->num_cols;
 }
-bool Map::isValid(const Position& pos, MovingObject* mv_obj) const
+bool Map::isValid(const Position &pos, MovingObject *mv_obj) const
 {
     if (pos.getRow() <= -1 || pos.getRow() >= this->num_rows)
         return false;
@@ -278,17 +224,9 @@ bool Map::isValid(const Position& pos, MovingObject* mv_obj) const
     return false;
 }
 
-
-
-
-
-
-
-
-
-//character
-Character::Character() {}; // default constructor
-Character::Character(int index, const Position& pos, Map* map, int hp, int exp, string name) : MovingObject(index, pos, map, name)
+// character
+Character::Character(){}; // default constructor
+Character::Character(int index, const Position &pos, Map *map, int hp, int exp, string name) : MovingObject(index, pos, map, name)
 {
     setHP(hp);
     setEXP(exp);
@@ -311,17 +249,8 @@ void Character::setEXP(int exp)
     this->exp = (exp > 900) ? 900 : exp;
 }
 
-
-
-
-
-
-
-
-
-
 // MovingObject - Sherlock
-Sherlock::Sherlock(int index, const string& moving_rule, const Position& init_pos, Map* map, int init_hp, int init_exp) : Character(index, init_pos, map, init_hp, init_exp, "Sherlock")
+Sherlock::Sherlock(int index, const string &moving_rule, const Position &init_pos, Map *map, int init_hp, int init_exp) : Character(index, init_pos, map, init_hp, init_exp, "Sherlock")
 {
     this->moving_rule = moving_rule;
 }
@@ -367,26 +296,13 @@ Position Sherlock::getNextPosition()
         return (map->isValid(next_cur, this) ? next_cur : next_cur.npos);
     }
 }
-SherlockBag* Sherlock::getBag()
+SherlockBag *Sherlock::getBag()
 {
     return this->bag;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 // MovingObject - Watson
-Watson::Watson(int index, const string& moving_rule, const Position& init_pos, Map* map, int init_hp, int init_exp) : Character(index, init_pos, map, init_hp, init_exp, "Watson")
+Watson::Watson(int index, const string &moving_rule, const Position &init_pos, Map *map, int init_hp, int init_exp) : Character(index, init_pos, map, init_hp, init_exp, "Watson")
 {
     this->moving_rule = moving_rule;
 }
@@ -432,25 +348,13 @@ Position Watson::getNextPosition()
         return (map->isValid(next_cur, this) ? next_cur : next_cur.npos);
     }
 }
-WatsonBag* Watson::getBag()
+WatsonBag *Watson::getBag()
 {
     return this->bag;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
 // MovingObject - Criminal
-Criminal::Criminal(int index, const Position& init_pos, Map* map, Sherlock* sherlock, Watson* watson) : Character(index, init_pos, map, 0, 0, "Criminal")
+Criminal::Criminal(int index, const Position &init_pos, Map *map, Sherlock *sherlock, Watson *watson) : Character(index, init_pos, map, 0, 0, "Criminal")
 {
     this->step_count = 0;
     this->sherlock = sherlock;
@@ -561,13 +465,14 @@ int Criminal::getStepCount() const
 {
     return this->step_count; // check mod 3
 }
-Map* Criminal::get_map()
+Map *Criminal::get_map()
 {
     return this->map;
 }
-Robot* Criminal::init_robot(int index)
+Robot *Criminal::init_robot(int index)
 {
-    if (step_count != 3) return nullptr;
+    if (step_count != 3)
+        return nullptr;
     if (first == false)
     {
         first = true;
@@ -586,22 +491,12 @@ Robot* Criminal::init_robot(int index)
     return new RobotSW(index, this->prev_pos, map, this, this->sherlock, this->watson);
 }
 
-
-
-
-
-
-
-
-
-
-
 // MovingObject
 ArrayMovingObject::ArrayMovingObject(int capacity)
 {
     this->capacity = capacity;
     this->count = 0;
-    this->arr_mv_objs = new MovingObject * [capacity];
+    this->arr_mv_objs = new MovingObject *[capacity];
     for (int i = 0; i < capacity; i++)
     {
         arr_mv_objs[i] = NULL;
@@ -615,7 +510,7 @@ bool ArrayMovingObject::isFull() const
 {
     return (count == capacity);
 }
-bool ArrayMovingObject::add(MovingObject* mv_obj)
+bool ArrayMovingObject::add(MovingObject *mv_obj)
 {
     if (this->isFull())
         return false;
@@ -632,26 +527,19 @@ string ArrayMovingObject::str() const
     string ans = "ArrayMovingObject[count=" + to_string(this->count) + ";capacity=" + to_string(this->capacity);
     for (int i = 0; i < count; i++)
     {
-        if(this->arr_mv_objs[i]!=nullptr) ans = ans + ";" + this->arr_mv_objs[i]->str();
+        if (this->arr_mv_objs[i] != nullptr)
+            ans = ans + ";" + this->arr_mv_objs[i]->str();
     }
     ans = ans + "]";
     return ans;
 }
-MovingObject* ArrayMovingObject::get(int index) const
+MovingObject *ArrayMovingObject::get(int index) const
 {
     return this->arr_mv_objs[index];
 }
 
-
-
-
-
-
-
-
-
 // config
-void Array(string value, Position*& arr, int& num)
+void Array(string value, Position *&arr, int &num)
 {
     if (arr != nullptr)
     {
@@ -678,7 +566,7 @@ void Array(string value, Position*& arr, int& num)
         start = value.find('(');
     }
 }
-void Configuration::loadConfig(const string& str)
+void Configuration::loadConfig(const string &str)
 {
     int find_equal = str.find('=');
     string name = str.substr(0, find_equal);
@@ -748,7 +636,7 @@ void Configuration::loadConfig(const string& str)
         cout << "Invalid name: " << name << endl;
     }
 }
-Configuration::Configuration(const string& filepath)
+Configuration::Configuration(const string &filepath)
 {
     ifstream file(filepath);
     string line;
@@ -801,35 +689,20 @@ string Configuration::str() const
     return ans;
 }
 
-
-
-
-
-
-//BaseItem
-BaseItem::BaseItem(ItemType type) : type(type) {};
+// BaseItem
+BaseItem::BaseItem(ItemType type) : type(type){};
 int BaseItem::getItemType() const
 {
     return type;
 }
 
-
-
-
-
-
-
-
-
-
-
 // BaseItem - MagicBook
-MagicBook::MagicBook() : BaseItem(MAGIC_BOOK) {};
-bool MagicBook::canUse(Character* obj, Robot* robot)
+MagicBook::MagicBook() : BaseItem(MAGIC_BOOK){};
+bool MagicBook::canUse(Character *obj, Robot *robot)
 {
     return obj->getEXP() <= 350;
 }
-void MagicBook::use(Character* obj, Robot* robot)
+void MagicBook::use(Character *obj, Robot *robot)
 {
     if (canUse(obj, robot))
     {
@@ -841,20 +714,13 @@ string MagicBook::str()
     return "MagicBook";
 }
 
-
-
-
-
-
-
-
 // BaseItem - EnergyDrink
-EnergyDrink::EnergyDrink() : BaseItem(ENERGY_DRINK) {};
-bool EnergyDrink::canUse(Character* obj, Robot* robot)
+EnergyDrink::EnergyDrink() : BaseItem(ENERGY_DRINK){};
+bool EnergyDrink::canUse(Character *obj, Robot *robot)
 {
     return obj->getHP() <= 100;
 }
-void EnergyDrink::use(Character* obj, Robot* robot)
+void EnergyDrink::use(Character *obj, Robot *robot)
 {
     if (canUse(obj, robot))
     {
@@ -866,21 +732,13 @@ string EnergyDrink::str()
     return "EnergyDrink";
 }
 
-
-
-
-
-
-
-
-
 // BaseItem - FirstAid
-FirstAid::FirstAid() : BaseItem(FIRST_AID) {};
-bool FirstAid::canUse(Character* obj, Robot* robot)
+FirstAid::FirstAid() : BaseItem(FIRST_AID){};
+bool FirstAid::canUse(Character *obj, Robot *robot)
 {
     return (obj->getEXP() <= 350 || obj->getHP() <= 100);
 }
-void FirstAid::use(Character* obj, Robot* robot)
+void FirstAid::use(Character *obj, Robot *robot)
 {
     if (canUse(obj, robot))
     {
@@ -892,20 +750,13 @@ string FirstAid::str()
     return "FirstAid";
 }
 
-
-
-
-
-
-
-
 // BaseItem - ExcemptionCard
-ExcemptionCard::ExcemptionCard() : BaseItem(EXCEMPTION_CARD) {};
-bool ExcemptionCard::canUse(Character* obj, Robot* robot)
+ExcemptionCard::ExcemptionCard() : BaseItem(EXCEMPTION_CARD){};
+bool ExcemptionCard::canUse(Character *obj, Robot *robot)
 {
     return (obj->getName() == "Sherlock" && obj->getHP() % 2 != 0);
 }
-void ExcemptionCard::use(Character* obj, Robot* robot)
+void ExcemptionCard::use(Character *obj, Robot *robot)
 {
 }
 string ExcemptionCard::str()
@@ -913,21 +764,15 @@ string ExcemptionCard::str()
     return "ExcemptionCard";
 }
 
-
-
-
-
-
-
-
 // BaseItem - PassingCard
-bool PassingCard::canUse(Character* obj, Robot* robot)
+bool PassingCard::canUse(Character *obj, Robot *robot)
 {
     return (obj->getName() == "Watson" && obj->getHP() % 2 != 0);
 }
-void PassingCard::use(Character* obj, Robot* robot)
+void PassingCard::use(Character *obj, Robot *robot)
 {
-    if (!canUse(obj, robot)) return;
+    if (!canUse(obj, robot))
+        return;
     if (this->chal == "all")
         return;
     if (this->chal == robot->getName())
@@ -942,15 +787,9 @@ string PassingCard::str()
     return "PassingCard";
 }
 
-
-
-
-
-
-
-//Robot
-Robot::Robot() {};
-Robot::Robot(RobotType robotType, int index, const Position& pos, Map* map, string name) : MovingObject(index, pos, map, name)
+// Robot
+Robot::Robot(){};
+Robot::Robot(RobotType robotType, int index, const Position &pos, Map *map, string name) : MovingObject(index, pos, map, name)
 {
     this->robottype = robotType;
     int p = pos.getRow() * pos.getCol();
@@ -987,7 +826,7 @@ Robot::Robot(RobotType robotType, int index, const Position& pos, Map* map, stri
             this->item = new PassingCard("all");
     }
 }
-bool Robot::addtoArrayMovingObject(ArrayMovingObject& arr_moving)
+bool Robot::addtoArrayMovingObject(ArrayMovingObject &arr_moving)
 {
     if (!arr_moving.isFull())
     {
@@ -1000,7 +839,7 @@ int Robot::calculateDistance(Position other1, Position other2) const
 {
     return abs(other1.getCol() - other2.getCol()) + abs(other1.getRow() - other2.getRow());
 }
-BaseItem* Robot::getItem() const
+BaseItem *Robot::getItem() const
 {
     return this->item;
 }
@@ -1009,14 +848,9 @@ RobotType Robot::getRobotType() const
     return this->robottype;
 }
 
-
-
-
-
-
 // Robot - RobotC
-RobotC::RobotC() {};
-RobotC::RobotC(int index, const Position& pos, Map* map, Criminal* criminal) : Robot(C, index, pos, map, "RobotC")
+RobotC::RobotC(){};
+RobotC::RobotC(int index, const Position &pos, Map *map, Criminal *criminal) : Robot(C, index, pos, map, "RobotC")
 {
     this->criminal = criminal;
 }
@@ -1039,16 +873,9 @@ Position RobotC::getNextPosition()
     return (criminal->get_map()->isValid(next_cur, this) ? next_cur : next_cur.npos);
 }
 
-
-
-
-
-
-
-
 // Robot - RobotS
-RobotS::RobotS() {};
-RobotS::RobotS(int index, const Position& pos, Map* map, Criminal* criminal, Sherlock* sherlock) : Robot(S, index, pos, map, "RobotS")
+RobotS::RobotS(){};
+RobotS::RobotS(int index, const Position &pos, Map *map, Criminal *criminal, Sherlock *sherlock) : Robot(S, index, pos, map, "RobotS")
 {
     this->criminal = criminal;
     this->sherlock = sherlock;
@@ -1096,13 +923,13 @@ Position RobotS::getNextPosition()
             ch = 'u';
         }
     }
-    if (map->isValid(pri_left, this))
+    if (map->isValid(pri_right, this))
     {
-        l = calculateDistance(pri_left, sher_cur);
-        if (l < ans)
+        r = calculateDistance(pri_right, sher_cur);
+        if (r < ans)
         {
-            ans = l;
-            ch = 'l';
+            ans = r;
+            ch = 'r';
         }
     }
     if (map->isValid(pri_down, this))
@@ -1114,16 +941,16 @@ Position RobotS::getNextPosition()
             ch = 'd';
         }
     }
-    
-    if (map->isValid(pri_right, this))
+    if (map->isValid(pri_left, this))
     {
-        r = calculateDistance(pri_right, sher_cur);
-        if (r < ans)
+        l = calculateDistance(pri_left, sher_cur);
+        if (l < ans)
         {
-            ans = r;
-            ch = 'r';
+            ans = l;
+            ch = 'l';
         }
     }
+
     if (ans == 1000000)
         return pri_cur.npos;
     if (ch == 'u')
@@ -1136,24 +963,9 @@ Position RobotS::getNextPosition()
         return pri_left;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Robot - RobotW
-RobotW::RobotW() {};
-RobotW::RobotW(int index, const Position& pos, Map* map, Criminal* criminal, Watson* watson): Robot(W,index,pos,map, "RobotW")
+RobotW::RobotW(){};
+RobotW::RobotW(int index, const Position &pos, Map *map, Criminal *criminal, Watson *watson) : Robot(W, index, pos, map, "RobotW")
 {
     this->criminal = criminal;
     this->watson = watson;
@@ -1201,13 +1013,13 @@ Position RobotW::getNextPosition()
             ch = 'u';
         }
     }
-    if (map->isValid(pri_left, this))
+    if (map->isValid(pri_right, this))
     {
-        l = calculateDistance(pri_left, wat_cur);
-        if (l < ans)
+        r = calculateDistance(pri_right, wat_cur);
+        if (r < ans)
         {
-            ans = l;
-            ch = 'l';
+            ans = r;
+            ch = 'r';
         }
     }
     if (map->isValid(pri_down, this))
@@ -1219,16 +1031,16 @@ Position RobotW::getNextPosition()
             ch = 'd';
         }
     }
-
-    if (map->isValid(pri_right, this))
+    if (map->isValid(pri_left, this))
     {
-        r = calculateDistance(pri_right, wat_cur);
-        if (r < ans)
+        l = calculateDistance(pri_left, wat_cur);
+        if (l < ans)
         {
-            ans = r;
-            ch = 'r';
+            ans = l;
+            ch = 'l';
         }
     }
+
     if (ans == 1000000)
         return pri_cur.npos;
     if (ch == 'u')
@@ -1241,16 +1053,9 @@ Position RobotW::getNextPosition()
         return pri_left;
 }
 
-
-
-
-
-
-
-
 // Robot - RobotSW
-RobotSW::RobotSW() {};
-RobotSW::RobotSW(int index, const Position& pos, Map* map, Criminal* criminal, Sherlock* sherlock, Watson* watson) : Robot(SW,index,pos,map,"RobotSW")
+RobotSW::RobotSW(){};
+RobotSW::RobotSW(int index, const Position &pos, Map *map, Criminal *criminal, Sherlock *sherlock, Watson *watson) : Robot(SW, index, pos, map, "RobotSW")
 {
     this->criminal = criminal;
     this->sherlock = sherlock;
@@ -1317,6 +1122,8 @@ Position RobotSW::getNextPosition()
     Position wat_cur = watson->getCurrentPosition();
     int l = 0, r = 0, u = 0, d = 0;
     int u_r = 0, d_r = 0, d_l = 0, u_l = 0;
+    int ans = 1000000;
+    string ch = "u";
 
     if (map->isValid(pri_up_up, this))
     {
@@ -1325,33 +1132,11 @@ Position RobotSW::getNextPosition()
             int dis_sher = calculateDistance(pri_up_up, sher_cur);
             int dis_wat = calculateDistance(pri_up_up, wat_cur);
             u = dis_wat + dis_sher;
-        }
-    }
-    if (map->isValid(pri_down_down, this))
-    {
-        if (map->isValid(check_down, this))
-        {
-            int dis_sher = calculateDistance(pri_down_down, sher_cur);
-            int dis_wat = calculateDistance(pri_down_down, wat_cur);
-            d = dis_wat + dis_sher;
-        }
-    }
-    if (map->isValid(pri_left_left, this))
-    {
-        if (map->isValid(check_left, this))
-        {
-            int dis_sher = calculateDistance(pri_left_left, sher_cur);
-            int dis_wat = calculateDistance(pri_left_left, wat_cur);
-            l = dis_wat + dis_sher;
-        }
-    }
-    if (map->isValid(pri_right_right, this))
-    {
-        if (map->isValid(check_right, this))
-        {
-            int dis_sher = calculateDistance(pri_right_right, sher_cur);
-            int dis_wat = calculateDistance(pri_right_right, wat_cur);
-            r = dis_wat + dis_sher;
+            if (u < ans)
+            {
+                ans = u;
+                ch = 'u';
+            }
         }
     }
     if (map->isValid(pri_up_right, this))
@@ -1361,6 +1146,25 @@ Position RobotSW::getNextPosition()
             int dis_sher = calculateDistance(pri_up_right, sher_cur);
             int dis_wat = calculateDistance(pri_up_right, wat_cur);
             u_r = dis_wat + dis_sher;
+            if (u_r < ans)
+            {
+                ans = u_r;
+                ch = 'u_r';
+            }
+        }
+    }
+    if (map->isValid(pri_right_right, this))
+    {
+        if (map->isValid(check_right, this))
+        {
+            int dis_sher = calculateDistance(pri_right_right, sher_cur);
+            int dis_wat = calculateDistance(pri_right_right, wat_cur);
+            r = dis_wat + dis_sher;
+            if (r < ans)
+            {
+                ans = r;
+                ch = 'r';
+            }
         }
     }
     if (map->isValid(pri_down_right, this))
@@ -1370,6 +1174,25 @@ Position RobotSW::getNextPosition()
             int dis_sher = calculateDistance(pri_down_right, sher_cur);
             int dis_wat = calculateDistance(pri_down_right, wat_cur);
             d_r = dis_wat + dis_sher;
+            if (d_r < ans)
+            {
+                ans = d_r;
+                ch = 'd_r';
+            }
+        }
+    }
+    if (map->isValid(pri_down_down, this))
+    {
+        if (map->isValid(check_down, this))
+        {
+            int dis_sher = calculateDistance(pri_down_down, sher_cur);
+            int dis_wat = calculateDistance(pri_down_down, wat_cur);
+            d = dis_wat + dis_sher;
+            if (d < ans)
+            {
+                ans = d;
+                ch = 'd';
+            }
         }
     }
     if (map->isValid(pri_down_left, this))
@@ -1379,6 +1202,25 @@ Position RobotSW::getNextPosition()
             int dis_sher = calculateDistance(pri_down_left, sher_cur);
             int dis_wat = calculateDistance(pri_down_left, wat_cur);
             d_l = dis_wat + dis_sher;
+            if (d_l < ans)
+            {
+                ans = d_l;
+                ch = 'd_l';
+            }
+        }
+    }
+    if (map->isValid(pri_left_left, this))
+    {
+        if (map->isValid(check_left, this))
+        {
+            int dis_sher = calculateDistance(pri_left_left, sher_cur);
+            int dis_wat = calculateDistance(pri_left_left, wat_cur);
+            l = dis_wat + dis_sher;
+            if (l < ans)
+            {
+                ans = l;
+                ch = 'l';
+            }
         }
     }
     if (map->isValid(pri_up_left, this))
@@ -1388,49 +1230,15 @@ Position RobotSW::getNextPosition()
             int dis_sher = calculateDistance(pri_up_left, sher_cur);
             int dis_wat = calculateDistance(pri_up_left, wat_cur);
             u_l = dis_wat + dis_sher;
+            if (u_l < ans)
+            {
+                ans = u_l;
+                ch = 'u_l';
+            }
         }
     }
-    if (u == 0 && d == 0 && l == 0 && r == 0 && u_r == 0 && d_r == 0 && d_l == 0 && u_l == 0)
-    {
+    if (ans == 1000000)
         return pri_cur.npos;
-    }
-    int ans = u;
-    string ch = "u";
-    if (u_r < ans && u_r != 0)
-    {
-        ans = u_r;
-        ch = "u_r";
-    }
-    if (r < ans && r != 0)
-    {
-        ans = r;
-        ch = "r";
-    }
-    if (d_r < ans && d_r != 0)
-    {
-        ans = d_r;
-        ch = "d_r";
-    }
-    if (d < ans && d != 0)
-    {
-        ans = d;
-        ch = "d";
-    }
-    if (d_l < ans && d_l != 0)
-    {
-        ans = d_l;
-        ch = "d_l";
-    }
-    if (l < ans && l != 0)
-    {
-        ans = l;
-        ch = "l";
-    }
-    if (u_l < ans && u_l != 0)
-    {
-        ans = u_l;
-        ch = "u_l";
-    }
     if (ch == "u")
         return pri_up_up;
     else if (ch == "u_r")
@@ -1449,23 +1257,179 @@ Position RobotSW::getNextPosition()
         return pri_up_left;
 }
 
-
-// BaseItem
-
-
-
-
-
-
-
-
-
-
 // BaseBag
-
+BaseBag::BaseBag(){};
+BaseBag::BaseBag(Character *obj)
+{
+    this->obj = obj;
+}
+bool BaseBag::insert(BaseItem *item)
+{
+    return true;
+}
+BaseItem *BaseBag::get()
+{
+    return nullptr;
+}
+BaseItem *BaseBag::get(ItemType itemType)
+{
+    return nullptr;
+}
+string BaseBag::str() const
+{
+    return "";
+}
 // BaseBag - SherlockBag
+SherlockBag::SherlockBag(){};
+SherlockBag::SherlockBag(Sherlock *sherlock)
+{
+    this->count = 0;
+    this->head = NULL;
+    this->obj = sherlock;
+}
+Node *SherlockBag::getHead()
+{
+    return this->head;
+}
+bool SherlockBag::insert(BaseItem *item)
+{
+    if (count >= capacity)
+        return false;
+    Node *temp = new Node(item, head);
+    head = temp;
+    count++;
+    return true;
+}
+BaseItem *SherlockBag::get()
+{
+    return nullptr;
+}
+BaseItem *SherlockBag::get(ItemType itemType)
+{
+    if (head == nullptr)
+    {
+        return nullptr;
+    }
+    Node *current = head;
+    Node *prev = nullptr;
+    while (current != nullptr)
+    {
+        if (current->item->getItemType() == itemType)
+        {
+            if (prev == nullptr)
+            {
+                head = head->next;
+                BaseItem *temp = current->item;
+                head->item = nullptr;
+                delete current;
+                this->count--;
+                return temp;
+            }
+            else
+            {
+                BaseItem *temp = current->item;
+                current->item = head->item;
+                head->item = nullptr;
+                Node *tempNode = head;
+                head = head->next;
+                delete tempNode;
+                count--;
+                return temp;
+            }
+        }
+        prev = current;
+        current = current->next;
+    }
+    return nullptr;
+}
+string SherlockBag::str() const
+{
+    string ans = "Bag[count=" + to_string(this->count) + ";";
 
+    for (Node *temp = head; temp != NULL; temp = temp->next)
+    {
+        ans += temp->item->str() + ",";
+        temp = temp->next;
+    }
+    return ans + "]";
+}
 
+// BaseBag - WatsonBag
+
+WatsonBag::WatsonBag(){};
+WatsonBag::WatsonBag(Watson *watson)
+{
+    this->count = 0;
+    this->head = NULL;
+    this->obj = watson;
+}
+Node *WatsonBag::getHead()
+{
+    return this->head;
+}
+bool WatsonBag::insert(BaseItem *item)
+{
+    if (count >= capacity)
+        return false;
+    Node *temp = new Node(item, head);
+    head = temp;
+    count++;
+    return true;
+}
+BaseItem *WatsonBag::get()
+{
+    return nullptr;
+}
+
+BaseItem *WatsonBag::get(ItemType itemType)
+{
+    if (head == nullptr)
+    {
+        return nullptr;
+    }
+    Node *current = head;
+    Node *prev = nullptr;
+    while (current != nullptr)
+    {
+        if (current->item->getItemType() == itemType)
+        {
+            if (prev == nullptr)
+            {
+                head = head->next;
+                BaseItem *temp = current->item;
+                head->item = nullptr;
+                delete current;
+                this->count--;
+                return temp;
+            }
+            else
+            {
+                BaseItem *temp = current->item;
+                current->item = head->item;
+                head->item = nullptr;
+                Node *tempNode = head;
+                head = head->next;
+                delete tempNode;
+                count--;
+                return temp;
+            }
+        }
+        prev = current;
+        current = current->next;
+    }
+    return nullptr;
+}
+string WatsonBag::str() const
+{
+    string ans = "Bag[count=" + to_string(this->count) + ";";
+
+    for (Node *temp = head; temp != NULL; temp = temp->next)
+    {
+        ans += temp->item->str() + ",";
+        temp = temp->next;
+    }
+    return ans + "]";
+}
 
 ////////////////////////////////////////////////
 /// END OF STUDENT'S ANSWER
