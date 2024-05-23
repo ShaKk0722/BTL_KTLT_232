@@ -191,7 +191,7 @@ Map::Map(int num_rows, int num_cols, int num_walls, Position *array_walls, int n
 }
 Map::~Map()
 {
-    /*
+
     for (int i = 0; i < num_rows; i++)
     {
         for (int j = 0; j < num_cols; j++)
@@ -201,7 +201,6 @@ Map::~Map()
         delete[] map[i];
     }
     delete[] map;
-    */
 }
 int Map::getNumRows() const
 {
@@ -747,13 +746,12 @@ ArrayMovingObject::ArrayMovingObject(int capacity)
 }
 ArrayMovingObject::~ArrayMovingObject()
 {
-    /*delete[] arr_mv_objs;
     for (int i = 3; i < this->count; i++)
     {
         delete arr_mv_objs[i];
     }
+    delete[] arr_mv_objs;
     count = 0;
-    */
 }
 bool ArrayMovingObject::isFull() const
 {
@@ -897,8 +895,8 @@ Configuration::Configuration(const string &filepath)
 }
 Configuration::~Configuration()
 {
-    // delete[] arr_fake_walls;
-    // delete[] arr_walls;
+    delete[] arr_fake_walls;
+    delete[] arr_walls;
 }
 string Configuration::str() const
 {
