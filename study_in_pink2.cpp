@@ -166,17 +166,17 @@ Map::Map(int num_rows, int num_cols, int num_walls, Position *array_walls, int n
             map[i][j] = NULL;
         }
     }
-
-    for (int i = 0; i < num_walls; i++)
-    {
-        Position pos = array_walls[i];
-        map[pos.getRow()][pos.getCol()] = new Wall;
-    }
     for (int i = 0; i < num_fake_walls; i++)
     {
         Position pos = array_fake_walls[i];
         int in_req_exp = (pos.getRow() * 257 + pos.getCol() * 139 + 89) % 900 + 1;
         map[pos.getRow()][pos.getCol()] = new FakeWall(in_req_exp);
+    }
+    for (int i = 0; i < num_walls; i++)
+    {
+        Position pos = array_walls[i];
+        if (map[pos.getRow()][pos.getCol()] == nullptr) delete map[pos.getRow()][pos.getCol()];
+        map[pos.getRow()][pos.getCol()] = new Wall;
     }
     for (int i = 0; i < num_rows; i++)
     {
@@ -340,6 +340,7 @@ bool Sherlock::beatC(MovingObject* robotC)
     {
         return true;
     }
+    this->bag->insert(robotC->getItem());
     return false;
 }
 void Sherlock::beatW(MovingObject* robotW)
@@ -371,7 +372,8 @@ void Sherlock::beatS(MovingObject* robotS)
         delete item;
         return;
     }
-    this->setEXP(this->getEXP() * 90 / 100);
+    int newEXP = ceil(this->getEXP() * 90.0 / 100);
+    this->setEXP(newEXP);
 }
 void Sherlock::beatSW(MovingObject* robotSW)
 {
@@ -391,8 +393,10 @@ void Sherlock::beatSW(MovingObject* robotSW)
         delete item;
         return;
     }
-    this->setEXP(this->getEXP() * 85 / 100);
-    this->setHP(this->getHP() * 85 / 100);
+    int newEXP = ceil(this->getEXP() * 85.0 / 100);
+    int newHP = ceil(this->getHP() * 85.0 / 100);
+    this->setEXP(newEXP);
+    this->setHP(newHP);
 }
 bool Sherlock::beatRobot(MovingObject* robot)
 {
@@ -530,7 +534,8 @@ void Watson::beatW(MovingObject* robotW)
         this->bag->insert(robotW->getItem());
         return;
     }
-    this->setHP(this->getHP() * 95 / 100);
+    int newHP = ceil(this->getHP() * 95.0 / 100);
+    this->setHP(newHP);
 }
 void Watson::beatS(MovingObject* robotS)
 {
@@ -567,8 +572,10 @@ void Watson::beatSW(MovingObject* robotSW)
         this->bag->insert(robotSW->getItem());
         return;
     }
-    this->setEXP(this->getEXP() * 85 / 100);
-    this->setHP(this->getHP() * 85 / 100);
+    int newEXP = ceil(this->getEXP() * 85.0 / 100);
+    int newHP = ceil(this->getHP() * 85.0 / 100);
+    this->setEXP(newEXP);
+    this->setHP(newHP);
 }
 void Watson::beatRobot(MovingObject* robot)
 {
@@ -949,7 +956,7 @@ bool MagicBook::canUse(Character *obj, Robot *robot)
 }
 void MagicBook::use(Character *obj, Robot *robot)
 {  
-    int newHP = round(obj->getEXP() * 125.0 / 100);
+    int newHP = ceil(obj->getEXP() * 125.0 / 100);
     obj->setEXP(newHP);
 }
 string MagicBook::str()
@@ -965,7 +972,7 @@ bool EnergyDrink::canUse(Character *obj, Robot *robot)
 }
 void EnergyDrink::use(Character *obj, Robot *robot)
 {
-    int newHP = round(obj->getHP() * 120 / 100);
+    int newHP = ceil(obj->getHP() * 120.0 / 100);
     obj->setHP(newHP);
 }
 string EnergyDrink::str()
@@ -981,7 +988,7 @@ bool FirstAid::canUse(Character *obj, Robot *robot)
 }
 void FirstAid::use(Character *obj, Robot *robot)
 {
-    int newHP = round(obj->getHP() * 150 / 100);
+    int newHP = ceil(obj->getHP() * 150.0 / 100);
     obj->setHP(newHP);
 }
 string FirstAid::str()
@@ -1023,7 +1030,10 @@ string PassingCard::str()
 {
     return "PassingCard";
 }
-
+string PassingCard::getChallenge()
+{
+    return this->chal;
+}
 // Robot
 Robot::Robot(){};
 Robot::Robot(RobotType robotType, int index, const Position &pos, Map *map, string name) : MovingObject(index, pos, map, name)
@@ -1078,7 +1088,27 @@ int Robot::calculateDistance(Position other1, Position other2) const
 }
 BaseItem *Robot::getItem() const
 {
-    return this->item;
+    if (this->item->getItemType() == 0)
+    {
+        return new MagicBook;
+    }
+    if (this->item->getItemType() == 1)
+    {
+        return new EnergyDrink;
+    }
+    if (this->item->getItemType() == 2)
+    {
+        return new FirstAid;
+    }
+    if (this->item->getItemType() == 3)
+    {
+        return new ExcemptionCard;
+    }
+    if (this->item->getItemType() == 4)
+    {
+        return new PassingCard(this->item->getChallenge());
+    }
+    return nullptr;
 }
 RobotType Robot::getRobotType() const
 {
@@ -1326,26 +1356,17 @@ string RobotSW::str() const
 Position RobotSW::getNextPosition()
 {
     Position pri_cur = this->getCurrentPosition();
-
     Position pri_up_up = pri_cur;
-    pri_up_up.setRow(pri_cur.getRow() - 1);
-    Position check_up = pri_up_up;
-    pri_up_up.setRow(pri_cur.getRow() - 1);
+    pri_up_up.setRow(pri_cur.getRow() - 2);
 
     Position pri_down_down = pri_cur;
-    pri_down_down.setRow(pri_cur.getRow() + 1);
-    Position check_down = pri_down_down;
-    pri_down_down.setRow(pri_cur.getRow() + 1);
+    pri_down_down.setRow(pri_cur.getRow() + 2);
 
     Position pri_left_left = pri_cur;
-    pri_left_left.setCol(pri_cur.getCol() - 1);
-    Position check_left = pri_left_left;
-    pri_left_left.setCol(pri_cur.getCol() - 1);
+    pri_left_left.setCol(pri_cur.getCol() - 2);
 
     Position pri_right_right = pri_cur;
-    pri_right_right.setCol(pri_cur.getCol() + 1);
-    Position check_right = pri_right_right;
-    pri_right_right.setCol(pri_cur.getCol() + 1);
+    pri_right_right.setCol(pri_cur.getCol() + 2);
 
     Position pri_up_right = pri_cur;
     pri_up_right.setRow(pri_cur.getRow() - 1);
@@ -1369,117 +1390,92 @@ Position RobotSW::getNextPosition()
     int u_r = 0, d_r = 0, d_l = 0, u_l = 0;
     int ans = 1000000;
     string ch = "u";
-
     if (map->isValid(pri_up_up, this))
     {
-        if (map->isValid(check_up, this))
+        int dis_sher = calculateDistance(pri_up_up, sher_cur);
+        int dis_wat = calculateDistance(pri_up_up, wat_cur);
+        u = dis_wat + dis_sher;
+        if (u < ans)
         {
-            int dis_sher = calculateDistance(pri_up_up, sher_cur);
-            int dis_wat = calculateDistance(pri_up_up, wat_cur);
-            u = dis_wat + dis_sher;
-            if (u < ans)
-            {
-                ans = u;
-                ch = "u";
-            }
+            ans = u;
+            ch = "u";
         }
     }
     if (map->isValid(pri_up_right, this))
     {
-        if (map->isValid(check_up, this) || map->isValid(check_right, this))
+        int dis_sher = calculateDistance(pri_up_right, sher_cur);
+        int dis_wat = calculateDistance(pri_up_right, wat_cur);
+        u_r = dis_wat + dis_sher;
+        if (u_r < ans)
         {
-            int dis_sher = calculateDistance(pri_up_right, sher_cur);
-            int dis_wat = calculateDistance(pri_up_right, wat_cur);
-            u_r = dis_wat + dis_sher;
-            if (u_r < ans)
-            {
-                ans = u_r;
-                ch = "u_r";
-            }
+            ans = u_r;
+            ch = "u_r";
         }
     }
     if (map->isValid(pri_right_right, this))
     {
-        if (map->isValid(check_right, this))
+        int dis_sher = calculateDistance(pri_right_right, sher_cur);
+        int dis_wat = calculateDistance(pri_right_right, wat_cur);
+        r = dis_wat + dis_sher;
+        if (r < ans)
         {
-            int dis_sher = calculateDistance(pri_right_right, sher_cur);
-            int dis_wat = calculateDistance(pri_right_right, wat_cur);
-            r = dis_wat + dis_sher;
-            if (r < ans)
-            {
-                ans = r;
-                ch = "r";
-            }
+            ans = r;
+            ch = "r";
         }
     }
     if (map->isValid(pri_down_right, this))
     {
-        if (map->isValid(check_down, this) || map->isValid(check_right, this))
+        int dis_sher = calculateDistance(pri_down_right, sher_cur);
+        int dis_wat = calculateDistance(pri_down_right, wat_cur);
+        d_r = dis_wat + dis_sher;
+        if (d_r < ans)
         {
-            int dis_sher = calculateDistance(pri_down_right, sher_cur);
-            int dis_wat = calculateDistance(pri_down_right, wat_cur);
-            d_r = dis_wat + dis_sher;
-            if (d_r < ans)
-            {
-                ans = d_r;
-                ch = "d_r";
-            }
+            ans = d_r;
+            ch = "d_r";
         }
     }
     if (map->isValid(pri_down_down, this))
     {
-        if (map->isValid(check_down, this))
+        int dis_sher = calculateDistance(pri_down_down, sher_cur);
+        int dis_wat = calculateDistance(pri_down_down, wat_cur);
+        d = dis_wat + dis_sher;
+        if (d < ans)
         {
-            int dis_sher = calculateDistance(pri_down_down, sher_cur);
-            int dis_wat = calculateDistance(pri_down_down, wat_cur);
-            d = dis_wat + dis_sher;
-            if (d < ans)
-            {
-                ans = d;
-                ch = "d";
-            }
+            ans = d;
+            ch = "d";
         }
     }
     if (map->isValid(pri_down_left, this))
     {
-        if (map->isValid(check_down, this) || map->isValid(check_left, this))
+        int dis_sher = calculateDistance(pri_down_left, sher_cur);
+        int dis_wat = calculateDistance(pri_down_left, wat_cur);
+        d_l = dis_wat + dis_sher;
+        if (d_l < ans)
         {
-            int dis_sher = calculateDistance(pri_down_left, sher_cur);
-            int dis_wat = calculateDistance(pri_down_left, wat_cur);
-            d_l = dis_wat + dis_sher;
-            if (d_l < ans)
-            {
-                ans = d_l;
-                ch = "d_l";
-            }
+            ans = d_l;
+            ch = "d_l";
         }
     }
     if (map->isValid(pri_left_left, this))
     {
-        if (map->isValid(check_left, this))
+        int dis_sher = calculateDistance(pri_left_left, sher_cur);
+        int dis_wat = calculateDistance(pri_left_left, wat_cur);
+        l = dis_wat + dis_sher;
+        if (l < ans)
         {
-            int dis_sher = calculateDistance(pri_left_left, sher_cur);
-            int dis_wat = calculateDistance(pri_left_left, wat_cur);
-            l = dis_wat + dis_sher;
-            if (l < ans)
-            {
-                ans = l;
-                ch = "l";
-            }
+            ans = l;
+            ch = "l";
         }
     }
     if (map->isValid(pri_up_left, this))
     {
-        if (map->isValid(check_up, this) || map->isValid(check_left, this))
+        int dis_sher = calculateDistance(pri_up_left, sher_cur);
+        int dis_wat = calculateDistance(pri_up_left, wat_cur);
+        u_l = dis_wat + dis_sher;
+        if (u_l < ans)
         {
-            int dis_sher = calculateDistance(pri_up_left, sher_cur);
-            int dis_wat = calculateDistance(pri_up_left, wat_cur);
-            u_l = dis_wat + dis_sher;
-            if (u_l < ans)
-            {
-                ans = u_l;
-                ch = "u_l";
-            }
+            ans = u_l;
+            ch = "u_l";
         }
     }
     if (ans == 1000000)
@@ -1595,7 +1591,7 @@ BaseItem *SherlockBag::get(ItemType itemType)
             {
                 head = head->next;
                 BaseItem *temp = current->item;
-                head->item = nullptr;
+                current->item = nullptr;
                 delete current;
                 this->count--;
                 return temp;
@@ -1620,11 +1616,15 @@ BaseItem *SherlockBag::get(ItemType itemType)
 string SherlockBag::str() const
 {
     string ans = "Bag[count=" + to_string(this->count) + ";";
-
-    for (Node *temp = head; temp != NULL; temp = temp->next)
+    Node* temp = head;
+    if (temp != nullptr)
     {
-        ans += temp->item->str() + ",";
+        ans += temp->item->str();
         temp = temp->next;
+    }
+    for (temp; temp != nullptr; temp = temp->next)
+    {
+        ans += "," + temp->item->str();
     }
     return ans + "]";
 }
@@ -1688,7 +1688,7 @@ BaseItem *WatsonBag::get(ItemType itemType)
             {
                 head = head->next;
                 BaseItem *temp = current->item;
-                head->item = nullptr;
+                current->item = nullptr;
                 delete current;
                 this->count--;
                 return temp;
@@ -1713,11 +1713,15 @@ BaseItem *WatsonBag::get(ItemType itemType)
 string WatsonBag::str() const
 {
     string ans = "Bag[count=" + to_string(this->count) + ";";
-
-    for (Node *temp = head; temp != NULL; temp = temp->next)
+    Node* temp = head;
+    if (temp != nullptr)
     {
-        ans += temp->item->str() + ",";
+        ans += temp->item->str();
         temp = temp->next;
+    }
+    for (temp; temp != nullptr; temp = temp->next)
+    {
+        ans += "," + temp->item->str();
     }
     return ans + "]";
 }

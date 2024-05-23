@@ -297,6 +297,10 @@ public:
     virtual void use(Character *obj, Robot *robot) = 0;
     int getItemType() const;
     virtual string str() = 0;
+    virtual string getChallenge() 
+    {
+        return ""; 
+    }
     ~BaseItem();
 };
 class MagicBook : public BaseItem
@@ -341,6 +345,7 @@ public:
     bool canUse(Character *obj, Robot *robot) override;
     void use(Character *obj, Robot *robot) override;
     string str() override;
+    string getChallenge();
 };
 
 // Robot, BaseItem, BaseBag,...
@@ -615,7 +620,106 @@ public:
     ~StudyPinkProgram()
     {
     }
-   
+    void run(bool verbose, int OUTPUT)
+    {
+        for (int istep = 0; istep < config->num_steps; ++istep)
+        {
+            for (int i = 0; i < arr_mv_objs->size(); i++)
+            {
+                arr_mv_objs->get(i)->move();
+                if (arr_mv_objs->get(i)->getName() == "Sherlock")
+                {
+                    if (sherlock->meetWatson(watson))
+                    {
+                        sherlock->tradeWatson(watson);
+                        watson->tradeSherlock(sherlock);
+                    }
+                    for (int i = 3; i < arr_mv_objs->size(); i++)
+                    {
+
+                        if (sherlock->meetRobot(arr_mv_objs->get(i)))
+                        {
+                            isWin = (sherlock->beatRobot(arr_mv_objs->get(i)));
+                        }
+                    }
+                }
+                else if (arr_mv_objs->get(i)->getName() == "Watson")
+                {
+                    if (sherlock->meetWatson(watson))
+                    {
+                        sherlock->tradeWatson(watson);
+                        watson->tradeSherlock(sherlock);
+                    }
+                    for (int i = 3; i < arr_mv_objs->size(); i++)
+                    {
+                        if (watson->meetRobot(arr_mv_objs->get(i)))
+                        {
+                            watson->beatRobot(arr_mv_objs->get(i));
+                        }
+                    }
+                }
+                else if (arr_mv_objs->get(i)->getName() == "Criminal")
+                {
+                    int index = arr_mv_objs->size();
+                    Robot* temp = arr_mv_objs->get(i)->init_robot(index);
+                    if (temp != nullptr)
+                    {
+                        if (arr_mv_objs->add(temp) == false)
+                        {
+                            delete temp;
+                        }
+                    }
+                }
+                else
+                {
+                    if (sherlock->meetRobot(arr_mv_objs->get(i)))
+                    {
+                        isWin = (sherlock->beatRobot(arr_mv_objs->get(i)));
+                    }
+                    if (watson->meetRobot(arr_mv_objs->get(i)))
+                    {
+                        watson->beatRobot(arr_mv_objs->get(i));
+                    }
+                }
+                if (isStop())
+                {
+                    printInfo(istep, i);
+                    break;
+                }
+                if (verbose)
+                {
+                    printInfo(istep, i);
+                }
+            }
+            if (isStop())
+            {
+                break;
+            }
+        }
+        printResult();
+    }
+    void printInfo(int si, int i)
+    {
+        cout << endl
+            << "*************AFTER MOVE*************" << endl;
+        cout
+            << "ROUND : " << si << " - TURN : " << i << endl;
+        stringstream ss(arr_mv_objs->str());
+        string lineArr = "";
+        getline(ss, lineArr, 'C');
+        cout << lineArr << "]" << endl;
+        getline(ss, lineArr, ']');
+        cout << "\tC" << lineArr << "]" << endl;
+        while (getline(ss, lineArr, ']'))
+        {
+            if (lineArr.length() > 0)
+                cout << "\t" << lineArr.substr(1) << "]" << endl;
+        }
+        cout << "Sherlock HP_" << sherlock->getHP() << " EXP_" << sherlock->getEXP() << endl
+            << "Watson HP_" << watson->getHP() << " EXP_" << watson->getEXP() << endl
+            << "SherlockBag : " << sherlock->getBag()->str() << endl
+            << "WatsonBag : " << watson->getBag()->str() << endl;
+    }
 };
 
 ////////////////////////////////////////////////
