@@ -394,7 +394,31 @@ void Sherlock::beatSW(MovingObject* robotSW)
     this->setEXP(this->getEXP() * 85 / 100);
     this->setHP(this->getHP() * 85 / 100);
 }
-
+bool Sherlock::beatRobot(MovingObject* robot)
+{
+    if (robot->getName() == "RobotC")
+    {
+        if (this->beatC(robot))
+        {
+            return true;
+        }
+    }
+    else if (robot->getName() == "RobotW")
+    {
+        this->beatW(robot);
+    }
+    else if (robot->getName() == "RobotS")
+    {
+        this->beatS(robot);
+    }
+    else if (robot->getName() == "RobotSW")
+    {
+        this->beatSW(robot);
+    }
+    BaseItem * item = this->getBag()->get();
+    if (item != nullptr) item->use(this, nullptr);
+    return false;
+}
 
 
 
@@ -546,7 +570,27 @@ void Watson::beatSW(MovingObject* robotSW)
     this->setEXP(this->getEXP() * 85 / 100);
     this->setHP(this->getHP() * 85 / 100);
 }
-
+void Watson::beatRobot(MovingObject* robot)
+{
+    if (robot->getName() == "RobotC")
+    {
+        this->beatC(robot);
+    }
+    else if (robot->getName() == "RobotW")
+    {
+        this->beatW(robot);
+    }
+    else if (robot->getName() == "RobotS")
+    {
+        this->beatS(robot);
+    }
+    else if (robot->getName() == "RobotSW")
+    {
+        this->beatSW(robot);
+    }
+    BaseItem* item = this->getBag()->get();
+    if(item !=nullptr) item->use(this, nullptr);
+}
 
 
 
@@ -905,7 +949,8 @@ bool MagicBook::canUse(Character *obj, Robot *robot)
 }
 void MagicBook::use(Character *obj, Robot *robot)
 {  
-    obj->setEXP(obj->getEXP() * 125 / 100);
+    int newHP = round(obj->getEXP() * 125.0 / 100);
+    obj->setEXP(newHP);
 }
 string MagicBook::str()
 {
@@ -920,7 +965,8 @@ bool EnergyDrink::canUse(Character *obj, Robot *robot)
 }
 void EnergyDrink::use(Character *obj, Robot *robot)
 {
-    obj->setHP(obj->getHP() * 120 / 100);
+    int newHP = round(obj->getHP() * 120 / 100);
+    obj->setHP(newHP);
 }
 string EnergyDrink::str()
 {
@@ -935,7 +981,8 @@ bool FirstAid::canUse(Character *obj, Robot *robot)
 }
 void FirstAid::use(Character *obj, Robot *robot)
 {
-    obj->setHP(obj->getHP() * 150 / 100);
+    int newHP = round(obj->getHP() * 150 / 100);
+    obj->setHP(newHP);
 }
 string FirstAid::str()
 {
@@ -1250,6 +1297,7 @@ Position RobotW::getNextPosition()
         return pri_left;
 }
 
+
 // Robot - RobotSW
 RobotSW::RobotSW(){};
 RobotSW::RobotSW(int index, const Position &pos, Map *map, Criminal *criminal, Sherlock *sherlock, Watson *watson) : Robot(SW, index, pos, map, "RobotSW")
@@ -1454,6 +1502,12 @@ Position RobotSW::getNextPosition()
         return pri_up_left;
 }
 
+
+
+
+
+
+
 // BaseBag
 BaseBag::BaseBag(){};
 BaseBag::BaseBag(Character *obj)
@@ -1476,6 +1530,14 @@ string BaseBag::str() const
 {
     return "";
 }
+
+
+
+
+
+
+
+
 // BaseBag - SherlockBag
 SherlockBag::SherlockBag(){};
 SherlockBag::SherlockBag(Sherlock *sherlock)
@@ -1578,6 +1640,7 @@ WatsonBag::WatsonBag(Watson *watson)
 }
 Node *WatsonBag::getHead()
 {
+   
     return this->head;
 }
 bool WatsonBag::insert(BaseItem *item)

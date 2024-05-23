@@ -196,6 +196,7 @@ public:
     void beatW(MovingObject* robotW);
     void beatS(MovingObject* robotS);
     void beatSW(MovingObject* robotSW);
+    bool beatRobot(MovingObject* robot);
 };
 class Watson : public Character
 {
@@ -217,6 +218,7 @@ public:
     void beatW(MovingObject* robotW);
     void beatS(MovingObject* robotS);
     void beatSW(MovingObject* robotSW);
+    void beatRobot(MovingObject* robot);
 };
 class Criminal : public Character
 {
@@ -479,7 +481,7 @@ private:
 
     Map *map;
     ArrayMovingObject *arr_mv_objs;
-
+    bool isWin = false;
 public:
     StudyPinkProgram(const string &config_file_path)
     {
@@ -507,7 +509,7 @@ public:
 
     void printResult() const
     {
-        if (sherlock->getCurrentPosition().isEqual(criminal->getCurrentPosition().getRow(), criminal->getCurrentPosition().getCol()))
+        if (sherlock->getCurrentPosition().isEqual(criminal->getCurrentPosition().getRow(), criminal->getCurrentPosition().getCol()) || isWin == true)
         {
             cout << "Sherlock caught the criminal" << endl;
         }
@@ -534,11 +536,42 @@ public:
         // TODO
         for (int istep = 0; istep < config->num_steps; ++istep)
         {
-            int n = arr_mv_objs->size();
-            for (int i = 0; i < n; i++)
+            for (int i = 0; i < arr_mv_objs->size(); i++)
             {
+                cout << "\n\nstep: " << istep << " i: " << i << endl;
                 arr_mv_objs->get(i)->move();
-                if (arr_mv_objs->get(i)->getName() == "Criminal")
+                if (arr_mv_objs->get(i)->getName() == "Sherlock")
+                {
+                    if (sherlock->meetWatson(watson))
+                    {
+                        sherlock->tradeWatson(watson);
+                        watson->tradeSherlock(sherlock);
+                    }
+                    for (int i = 3; i < arr_mv_objs->size(); i++)
+                    {
+
+                        if (sherlock->meetRobot(arr_mv_objs->get(i)))
+                        {
+                            isWin = (sherlock->beatRobot(arr_mv_objs->get(i)));
+                        }
+                    }
+                }
+                else if (arr_mv_objs->get(i)->getName() == "Watson")
+                {
+                    if (sherlock->meetWatson(watson))
+                    {
+                        sherlock->tradeWatson(watson);
+                        watson->tradeSherlock(sherlock);
+                    }
+                    for (int i = 3; i < arr_mv_objs->size(); i++)
+                    {
+                        if (watson->meetRobot(arr_mv_objs->get(i)))
+                        {
+                            watson->beatRobot(arr_mv_objs->get(i));
+                        }
+                    }
+                }
+                else if (arr_mv_objs->get(i)->getName() == "Criminal")
                 {
                     int index = arr_mv_objs->size();
                     Robot *temp = arr_mv_objs->get(i)->init_robot(index);
@@ -550,72 +583,30 @@ public:
                         }
                     }
                 }
-            }
-            if (sherlock->meetWatson(watson))
-            {
-                sherlock->tradeWatson(watson);
-                watson->tradeSherlock(sherlock);
-            }
-            for (int i = 3; i < n; i++)
-            {
-
-                if (sherlock->meetRobot(arr_mv_objs->get(i)))
+                else
                 {
-                    if (arr_mv_objs->get(i)->getName() == "RobotC")
+                    if (sherlock->meetRobot(arr_mv_objs->get(i)))
                     {
-                        if (sherlock->beatC(arr_mv_objs->get(i)))
-                        {
-                            cout << "Sherlock caught the criminal" << endl;
-                            return;
-                        }
+                        isWin = (sherlock->beatRobot(arr_mv_objs->get(i)));
                     }
-                    else if (arr_mv_objs->get(i)->getName() == "RobotW")
+                    if (watson->meetRobot(arr_mv_objs->get(i)))
                     {
-                        sherlock->beatW(arr_mv_objs->get(i));
+                        watson->beatRobot(arr_mv_objs->get(i));
                     }
-                    else if (arr_mv_objs->get(i)->getName() == "RobotS")
-                    {
-                        sherlock->beatS(arr_mv_objs->get(i));
-                    }
-                    else if (arr_mv_objs->get(i)->getName() == "RobotSW")
-                    {
-                        sherlock->beatSW(arr_mv_objs->get(i));
-                    }
-                    sherlock->getBag()->get();
                 }
-                if (watson->meetRobot(arr_mv_objs->get(i)))
+                if (isStop())
                 {
-                    if (arr_mv_objs->get(i)->getName() == "RobotC")
-                    {
-                        watson->beatC(arr_mv_objs->get(i));
-                    }
-                    else if (arr_mv_objs->get(i)->getName() == "RobotW")
-                    {
-                        watson->beatW(arr_mv_objs->get(i));
-                    }
-                    else if (arr_mv_objs->get(i)->getName() == "RobotS")
-                    {
-                        watson->beatS(arr_mv_objs->get(i));
-                    }
-                    else if (arr_mv_objs->get(i)->getName() == "RobotSW")
-                    {
-                        watson->beatSW(arr_mv_objs->get(i));
-                    }
-                    watson->getBag()->get();
+                    printStep(istep);
+                    break;
                 }
-
+                if (verbose)
+                {
+                    printStep(istep);
+                }
             }
             if (isStop())
             {
-                printResult();
                 break;
-            }
-            if (verbose)
-            {
-                cout << endl
-                     << endl;
-                cout << arr_mv_objs->str() << endl;
-                printStep(istep);
             }
         }
         printResult();
@@ -624,7 +615,7 @@ public:
     ~StudyPinkProgram()
     {
     }
-    
+   
 };
 
 ////////////////////////////////////////////////
