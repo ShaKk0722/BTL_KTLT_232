@@ -119,6 +119,21 @@ public:
     bool isEqual(int in_r, int in_c) const;
     bool isEqual(Position other) const;
 };
+
+class Map
+{
+private:
+    int num_rows, num_cols;
+    MapElement ***map;
+
+public:
+    Map(int num_rows, int num_cols, int num_walls, Position *array_walls, int num_fake_walls, Position *array_fake_walls);
+    ~Map();
+    int getNumRows() const;
+    int getNumCols() const;
+    bool isValid(const Position &pos, MovingObject *mv_obj) const;
+};
+
 class MovingObject
 {
 protected:
@@ -141,26 +156,11 @@ public:
     virtual void move() = 0;
     virtual string str() const;
     virtual Robot *init_robot(int index);
-    virtual BaseItem* getItem() const
+    virtual BaseItem *getItem() const
     {
         return nullptr;
     }
 }; // abstract class
-
-class Map
-{
-private:
-    int num_rows, num_cols;
-    MapElement ***map;
-
-public:
-    Map(int num_rows, int num_cols, int num_walls, Position *array_walls, int num_fake_walls, Position *array_fake_walls);
-    ~Map();
-    int getNumRows() const;
-    int getNumCols() const;
-    bool isValid(const Position &pos, MovingObject *mv_obj) const;
-};
-
 class Character : public MovingObject
 {
 protected:
@@ -189,14 +189,17 @@ public:
     void move() override;
     Position getNextPosition() override;
     SherlockBag *getBag();
-    bool meetRobot(MovingObject* robot);
-    bool meetWatson(Watson* watson);
-    void tradeWatson(Watson* watson);
-    bool beatC(MovingObject* robotC);
-    void beatW(MovingObject* robotW);
-    void beatS(MovingObject* robotS);
-    void beatSW(MovingObject* robotSW);
-    bool beatRobot(MovingObject* robot);
+    bool meetRobot(MovingObject *robot);
+    bool meetWatson(Watson *watson);
+    void tradeWatson(Watson *watson);
+    bool beatC(MovingObject *robotC);
+    void beatW(MovingObject *robotW);
+    void beatS(MovingObject *robotS);
+    void beatSW(MovingObject *robotSW);
+    bool beatRobot(MovingObject *robot);
+    ~Sherlock()
+    {
+    }
 };
 class Watson : public Character
 {
@@ -212,13 +215,16 @@ public:
     void move() override;
     Position getNextPosition() override;
     WatsonBag *getBag();
-    bool meetRobot(MovingObject* robot);
-    void tradeSherlock(Sherlock* sherlock);
-    void beatC(MovingObject* robotC);
-    void beatW(MovingObject* robotW);
-    void beatS(MovingObject* robotS);
-    void beatSW(MovingObject* robotSW);
-    void beatRobot(MovingObject* robot);
+    bool meetRobot(MovingObject *robot);
+    void tradeSherlock(Sherlock *sherlock);
+    void beatC(MovingObject *robotC);
+    void beatW(MovingObject *robotW);
+    void beatS(MovingObject *robotS);
+    void beatSW(MovingObject *robotSW);
+    void beatRobot(MovingObject *robot);
+    ~Watson()
+    {
+    }
 };
 class Criminal : public Character
 {
@@ -239,6 +245,9 @@ public:
     int getStepCount() const;
     Map *get_map();
     Robot *init_robot(int index);
+    ~Criminal()
+    {
+    }
 };
 class ArrayMovingObject
 {
@@ -257,6 +266,7 @@ public:
     MovingObject *get(int index) const;
     bool remove(MovingObject *mv_obj);
 };
+
 class Configuration
 {
     friend class StudyPinkProgram;
@@ -286,6 +296,7 @@ public:
     ~Configuration();
     string str() const;
 };
+
 class BaseItem
 {
 private:
@@ -297,11 +308,11 @@ public:
     virtual void use(Character *obj, Robot *robot) = 0;
     int getItemType() const;
     virtual string str() = 0;
-    virtual string getChallenge() 
+    virtual string getChallenge()
     {
-        return ""; 
+        return "";
     }
-    ~BaseItem();
+    ~BaseItem(){};
 };
 class MagicBook : public BaseItem
 {
@@ -362,7 +373,10 @@ public:
     int calculateDistance(Position other1, Position other2) const;
     BaseItem *getItem() const;
     RobotType getRobotType() const;
-    int getDistance(Character* obj) const;
+    int getDistance(Character *obj) const;
+    ~Robot()
+    {
+    }
 };
 class RobotC : public Robot
 {
@@ -375,6 +389,9 @@ public:
     void move();
     string str() const;
     Position getNextPosition();
+    ~RobotC()
+    {
+    }
 };
 class RobotS : public Robot
 {
@@ -388,6 +405,9 @@ public:
     void move();
     string str() const;
     Position getNextPosition();
+    ~RobotS()
+    {
+    }
 };
 class RobotW : public Robot
 {
@@ -401,6 +421,9 @@ public:
     void move();
     string str() const;
     Position getNextPosition();
+    ~RobotW()
+    {
+    }
 };
 class RobotSW : public Robot
 {
@@ -415,6 +438,9 @@ public:
     void move();
     string str() const;
     Position getNextPosition();
+    ~RobotSW()
+    {
+    }
 };
 
 struct Node
@@ -424,6 +450,9 @@ struct Node
 
     Node(BaseItem *item) : item(item), next(nullptr){};
     Node(BaseItem *item, Node *next) : item(item), next(next){};
+    ~Node()
+    {
+    }
 };
 
 class BaseBag
@@ -435,9 +464,12 @@ public:
     BaseBag();
     BaseBag(Character *obj);
     virtual bool insert(BaseItem *item);
-    virtual BaseItem* get(); // return the item as described above , if not found, return NULL
+    virtual BaseItem *get();                  // return the item as described above , if not found, return NULL
     virtual BaseItem *get(ItemType itemType); // return the item as described above , if not found , return NULL
     virtual string str() const;
+    ~BaseBag()
+    {
+    }
 };
 
 class SherlockBag : public BaseBag
@@ -452,10 +484,13 @@ public:
     SherlockBag(Sherlock *sherlock);
     Node *getHead();
     bool insert(BaseItem *item);
-    BaseItem* get(ItemType itemType);
-    BaseItem* get();
-    
+    BaseItem *get(ItemType itemType);
+    BaseItem *get();
+
     string str() const;
+    ~SherlockBag()
+    {
+    }
 };
 
 class WatsonBag : public BaseBag
@@ -473,6 +508,9 @@ public:
     BaseItem *get();
     BaseItem *get(ItemType itemType);
     string str() const;
+    ~WatsonBag()
+    {
+    }
 };
 class StudyPinkProgram
 {
@@ -487,6 +525,7 @@ private:
     Map *map;
     ArrayMovingObject *arr_mv_objs;
     bool isWin = false;
+
 public:
     StudyPinkProgram(const string &config_file_path)
     {
@@ -503,7 +542,7 @@ public:
 
     bool isStop() const
     {
-        if (this->sherlock->getHP() == 0 || this->watson->getHP() == 0)
+        if (this->sherlock->getHP() == 0 || this->watson->getHP() == 0 || isWin == true)
             return true;
         if (sherlock->getCurrentPosition().isEqual(criminal->getCurrentPosition().getRow(), criminal->getCurrentPosition().getCol()))
             return true;
@@ -535,34 +574,55 @@ public:
              << sherlock->str() << "--|--" << watson->str() << "--|--" << criminal->str() << endl;
     }
 
-    void run(bool verbose)
+    ~StudyPinkProgram()
     {
-        // Note: This is a sample code. You can change the implementation as you like.
-        // TODO
+    }
+    void run(bool verbose, ofstream &OUTPUT)
+    {
         for (int istep = 0; istep < config->num_steps; ++istep)
         {
             for (int i = 0; i < arr_mv_objs->size(); i++)
             {
-                cout << "\n\nstep: " << istep << " i: " << i << endl;
                 arr_mv_objs->get(i)->move();
                 if (arr_mv_objs->get(i)->getName() == "Sherlock")
                 {
+                    if (isStop())
+                    {
+                        printInfo(istep, i, OUTPUT);
+                        break;
+                    }
                     if (sherlock->meetWatson(watson))
                     {
                         sherlock->tradeWatson(watson);
                         watson->tradeSherlock(sherlock);
                     }
-                    for (int i = 3; i < arr_mv_objs->size(); i++)
+                    for (int j = 3; j < arr_mv_objs->size(); j++)
                     {
 
-                        if (sherlock->meetRobot(arr_mv_objs->get(i)))
+                        if (sherlock->meetRobot(arr_mv_objs->get(j)))
                         {
-                            isWin = (sherlock->beatRobot(arr_mv_objs->get(i)));
+                            isWin = (sherlock->beatRobot(arr_mv_objs->get(j)));
+                            if (isWin)
+                            {
+                                Position pos = criminal->getCurrentPosition();
+                                sherlock->set_position(pos);
+                                break;
+                            }
                         }
+                    }
+                    if (isWin)
+                    {
+                        printInfo(istep, i, OUTPUT);
+                        break;
                     }
                 }
                 else if (arr_mv_objs->get(i)->getName() == "Watson")
                 {
+                    if (isStop())
+                    {
+                        printInfo(istep, i, OUTPUT);
+                        break;
+                    }
                     if (sherlock->meetWatson(watson))
                     {
                         sherlock->tradeWatson(watson);
@@ -578,6 +638,11 @@ public:
                 }
                 else if (arr_mv_objs->get(i)->getName() == "Criminal")
                 {
+                    if (isStop())
+                    {
+                        printInfo(istep, i, OUTPUT);
+                        break;
+                    }
                     int index = arr_mv_objs->size();
                     Robot *temp = arr_mv_objs->get(i)->init_robot(index);
                     if (temp != nullptr)
@@ -593,20 +658,22 @@ public:
                     if (sherlock->meetRobot(arr_mv_objs->get(i)))
                     {
                         isWin = (sherlock->beatRobot(arr_mv_objs->get(i)));
+                        if (isWin)
+                        {
+                            Position pos = criminal->getCurrentPosition();
+                            sherlock->set_position(pos);
+                            printInfo(istep, i, OUTPUT);
+                            break;
+                        }
                     }
                     if (watson->meetRobot(arr_mv_objs->get(i)))
                     {
                         watson->beatRobot(arr_mv_objs->get(i));
                     }
                 }
-                if (isStop())
-                {
-                    printStep(istep);
-                    break;
-                }
                 if (verbose)
                 {
-                    printStep(istep);
+                    printInfo(istep, i, OUTPUT);
                 }
             }
             if (isStop())
@@ -616,109 +683,27 @@ public:
         }
         printResult();
     }
-
-    ~StudyPinkProgram()
+    void printInfo(int si, int i, ofstream &OUTPUT)
     {
-    }
-    void run(bool verbose, int OUTPUT)
-    {
-        for (int istep = 0; istep < config->num_steps; ++istep)
-        {
-            for (int i = 0; i < arr_mv_objs->size(); i++)
-            {
-                arr_mv_objs->get(i)->move();
-                if (arr_mv_objs->get(i)->getName() == "Sherlock")
-                {
-                    if (sherlock->meetWatson(watson))
-                    {
-                        sherlock->tradeWatson(watson);
-                        watson->tradeSherlock(sherlock);
-                    }
-                    for (int i = 3; i < arr_mv_objs->size(); i++)
-                    {
-
-                        if (sherlock->meetRobot(arr_mv_objs->get(i)))
-                        {
-                            isWin = (sherlock->beatRobot(arr_mv_objs->get(i)));
-                        }
-                    }
-                }
-                else if (arr_mv_objs->get(i)->getName() == "Watson")
-                {
-                    if (sherlock->meetWatson(watson))
-                    {
-                        sherlock->tradeWatson(watson);
-                        watson->tradeSherlock(sherlock);
-                    }
-                    for (int i = 3; i < arr_mv_objs->size(); i++)
-                    {
-                        if (watson->meetRobot(arr_mv_objs->get(i)))
-                        {
-                            watson->beatRobot(arr_mv_objs->get(i));
-                        }
-                    }
-                }
-                else if (arr_mv_objs->get(i)->getName() == "Criminal")
-                {
-                    int index = arr_mv_objs->size();
-                    Robot* temp = arr_mv_objs->get(i)->init_robot(index);
-                    if (temp != nullptr)
-                    {
-                        if (arr_mv_objs->add(temp) == false)
-                        {
-                            delete temp;
-                        }
-                    }
-                }
-                else
-                {
-                    if (sherlock->meetRobot(arr_mv_objs->get(i)))
-                    {
-                        isWin = (sherlock->beatRobot(arr_mv_objs->get(i)));
-                    }
-                    if (watson->meetRobot(arr_mv_objs->get(i)))
-                    {
-                        watson->beatRobot(arr_mv_objs->get(i));
-                    }
-                }
-                if (isStop())
-                {
-                    printInfo(istep, i);
-                    break;
-                }
-                if (verbose)
-                {
-                    printInfo(istep, i);
-                }
-            }
-            if (isStop())
-            {
-                break;
-            }
-        }
-        printResult();
-    }
-    void printInfo(int si, int i)
-    {
-        cout << endl
-            << "*************AFTER MOVE*************" << endl;
-        cout
+        OUTPUT << endl
+               << "*************AFTER MOVE*************" << endl;
+        OUTPUT
             << "ROUND : " << si << " - TURN : " << i << endl;
         stringstream ss(arr_mv_objs->str());
         string lineArr = "";
         getline(ss, lineArr, 'C');
-        cout << lineArr << "]" << endl;
+        OUTPUT << lineArr << "]" << endl;
         getline(ss, lineArr, ']');
-        cout << "\tC" << lineArr << "]" << endl;
+        OUTPUT << "\tC" << lineArr << "]" << endl;
         while (getline(ss, lineArr, ']'))
         {
             if (lineArr.length() > 0)
-                cout << "\t" << lineArr.substr(1) << "]" << endl;
+                OUTPUT << "\t" << lineArr.substr(1) << "]" << endl;
         }
-        cout << "Sherlock HP_" << sherlock->getHP() << " EXP_" << sherlock->getEXP() << endl
-            << "Watson HP_" << watson->getHP() << " EXP_" << watson->getEXP() << endl
-            << "SherlockBag : " << sherlock->getBag()->str() << endl
-            << "WatsonBag : " << watson->getBag()->str() << endl;
+        OUTPUT << "Sherlock HP_" << sherlock->getHP() << " EXP_" << sherlock->getEXP() << endl
+               << "Watson HP_" << watson->getHP() << " EXP_" << watson->getEXP() << endl
+               << "SherlockBag : " << sherlock->getBag()->str() << endl
+               << "WatsonBag : " << watson->getBag()->str() << endl;
     }
 };
 

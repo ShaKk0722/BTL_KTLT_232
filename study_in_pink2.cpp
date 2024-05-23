@@ -69,7 +69,6 @@ Position::Position(const string &str_pos)
     this->r = stoi(r_value);
     this->c = stoi(c_value);
 }
-
 bool Position::operator!=(const Position &other) const
 {
     return r != other.r || c != other.c;
@@ -175,7 +174,8 @@ Map::Map(int num_rows, int num_cols, int num_walls, Position *array_walls, int n
     for (int i = 0; i < num_walls; i++)
     {
         Position pos = array_walls[i];
-        if (map[pos.getRow()][pos.getCol()] == nullptr) delete map[pos.getRow()][pos.getCol()];
+        if (map[pos.getRow()][pos.getCol()] == nullptr)
+            delete map[pos.getRow()][pos.getCol()];
         map[pos.getRow()][pos.getCol()] = new Wall;
     }
     for (int i = 0; i < num_rows; i++)
@@ -191,6 +191,7 @@ Map::Map(int num_rows, int num_cols, int num_walls, Position *array_walls, int n
 }
 Map::~Map()
 {
+    /*
     for (int i = 0; i < num_rows; i++)
     {
         for (int j = 0; j < num_cols; j++)
@@ -200,6 +201,7 @@ Map::~Map()
         delete[] map[i];
     }
     delete[] map;
+    */
 }
 int Map::getNumRows() const
 {
@@ -305,22 +307,23 @@ SherlockBag *Sherlock::getBag()
 {
     return this->bag;
 }
-bool Sherlock::meetRobot(MovingObject* robot)
+bool Sherlock::meetRobot(MovingObject *robot)
 {
     return (this->getCurrentPosition().isEqual(robot->getCurrentPosition().getRow(), robot->getCurrentPosition().getCol()));
 }
-bool Sherlock::meetWatson(Watson* watson)
+bool Sherlock::meetWatson(Watson *watson)
 {
     int r = watson->getCurrentPosition().getRow();
     int c = watson->getCurrentPosition().getCol();
     return (this->getCurrentPosition().isEqual(r, c));
 }
-void Sherlock::tradeWatson(Watson* watson)
+void Sherlock::tradeWatson(Watson *watson)
 {
     while (true)
     {
-        BaseItem* item = bag->get(PASSING_CARD);
-        if (item == nullptr) return;
+        BaseItem *item = bag->get(PASSING_CARD);
+        if (item == nullptr)
+            return;
         if (!watson->getBag()->insert(item))
         {
             this->bag->insert(item);
@@ -328,9 +331,9 @@ void Sherlock::tradeWatson(Watson* watson)
         }
     }
 }
-bool Sherlock::beatC(MovingObject* robotC)
+bool Sherlock::beatC(MovingObject *robotC)
 {
-    BaseItem* item = nullptr;
+    BaseItem *item = nullptr;
     if (this->getHP() % 2 == 1)
     {
         item = this->bag->get(EXCEMPTION_CARD);
@@ -343,9 +346,9 @@ bool Sherlock::beatC(MovingObject* robotC)
     this->bag->insert(robotC->getItem());
     return false;
 }
-void Sherlock::beatW(MovingObject* robotW)
+void Sherlock::beatW(MovingObject *robotW)
 {
-    BaseItem* item = nullptr;
+    BaseItem *item = nullptr;
     if (this->getHP() % 2 == 1)
     {
         item = this->bag->get(EXCEMPTION_CARD);
@@ -354,9 +357,9 @@ void Sherlock::beatW(MovingObject* robotW)
     this->bag->insert(robotW->getItem());
     return;
 }
-void Sherlock::beatS(MovingObject* robotS)
+void Sherlock::beatS(MovingObject *robotS)
 {
-    BaseItem* item = nullptr;
+    BaseItem *item = nullptr;
     if (this->getHP() % 2 == 1)
     {
         item = this->bag->get(EXCEMPTION_CARD);
@@ -375,9 +378,9 @@ void Sherlock::beatS(MovingObject* robotS)
     int newEXP = ceil(this->getEXP() * 90.0 / 100);
     this->setEXP(newEXP);
 }
-void Sherlock::beatSW(MovingObject* robotSW)
+void Sherlock::beatSW(MovingObject *robotSW)
 {
-    BaseItem* item = nullptr;
+    BaseItem *item = nullptr;
     if (this->getHP() % 2 == 1)
     {
         item = this->bag->get(EXCEMPTION_CARD);
@@ -398,7 +401,7 @@ void Sherlock::beatSW(MovingObject* robotSW)
     this->setEXP(newEXP);
     this->setHP(newHP);
 }
-bool Sherlock::beatRobot(MovingObject* robot)
+bool Sherlock::beatRobot(MovingObject *robot)
 {
     if (robot->getName() == "RobotC")
     {
@@ -419,17 +422,11 @@ bool Sherlock::beatRobot(MovingObject* robot)
     {
         this->beatSW(robot);
     }
-    BaseItem * item = this->getBag()->get();
-    if (item != nullptr) item->use(this, nullptr);
+    BaseItem *item = this->getBag()->get();
+    if (item != nullptr)
+        item->use(this, nullptr);
     return false;
 }
-
-
-
-
-
-
-
 
 // MovingObject - Watson
 Watson::Watson(int index, const string &moving_rule, const Position &init_pos, Map *map, int init_hp, int init_exp) : Character(index, init_pos, map, init_hp, init_exp, "Watson")
@@ -483,16 +480,17 @@ WatsonBag *Watson::getBag()
 {
     return this->bag;
 }
-bool Watson::meetRobot(MovingObject* robot)
+bool Watson::meetRobot(MovingObject *robot)
 {
     return (this->getCurrentPosition().isEqual(robot->getCurrentPosition().getRow(), robot->getCurrentPosition().getCol()));
 }
-void Watson::tradeSherlock(Sherlock* sherlock)
+void Watson::tradeSherlock(Sherlock *sherlock)
 {
     while (true)
     {
-        BaseItem* item = bag->get(EXCEMPTION_CARD);
-        if (item == nullptr) return;
+        BaseItem *item = bag->get(EXCEMPTION_CARD);
+        if (item == nullptr)
+            return;
         if (!sherlock->getBag()->insert(item))
         {
             this->bag->insert(item);
@@ -500,31 +498,30 @@ void Watson::tradeSherlock(Sherlock* sherlock)
         }
     }
 }
-void Watson::beatC(MovingObject* robotC)
+void Watson::beatC(MovingObject *robotC)
 {
-    BaseItem* item = nullptr;
+    BaseItem *item = nullptr;
     if (this->getHP() % 2 == 0)
     {
         item = this->bag->get(PASSING_CARD);
     }
     if (item != nullptr)
     {
-        item->use(this, (Robot*)robotC);
+        item->use(this, (Robot *)robotC);
         delete item;
     }
     this->bag->insert(robotC->getItem());
-
 }
-void Watson::beatW(MovingObject* robotW)
+void Watson::beatW(MovingObject *robotW)
 {
-    BaseItem* item = nullptr;
+    BaseItem *item = nullptr;
     if (this->getHP() % 2 == 0)
     {
         item = this->bag->get(PASSING_CARD);
     }
     if (item != nullptr)
     {
-        item->use(this, (Robot*)robotW);
+        item->use(this, (Robot *)robotW);
         this->bag->insert(robotW->getItem());
         delete item;
         return;
@@ -537,32 +534,31 @@ void Watson::beatW(MovingObject* robotW)
     int newHP = ceil(this->getHP() * 95.0 / 100);
     this->setHP(newHP);
 }
-void Watson::beatS(MovingObject* robotS)
+void Watson::beatS(MovingObject *robotS)
 {
-    BaseItem* item = nullptr;
+    BaseItem *item = nullptr;
     if (this->getHP() % 2 == 0)
     {
         item = this->bag->get(PASSING_CARD);
     }
     if (item != nullptr)
     {
-        item->use(this, (Robot*)robotS);
+        item->use(this, (Robot *)robotS);
         this->bag->insert(robotS->getItem());
         delete item;
         return;
     }
-
 }
-void Watson::beatSW(MovingObject* robotSW)
+void Watson::beatSW(MovingObject *robotSW)
 {
-    BaseItem* item = nullptr;
+    BaseItem *item = nullptr;
     if (this->getHP() % 2 == 0)
     {
         item = this->bag->get(PASSING_CARD);
     }
     if (item != nullptr)
     {
-        item->use(this, (Robot*)robotSW);
+        item->use(this, (Robot *)robotSW);
         this->bag->insert(robotSW->getItem());
         delete item;
         return;
@@ -577,7 +573,7 @@ void Watson::beatSW(MovingObject* robotSW)
     this->setEXP(newEXP);
     this->setHP(newHP);
 }
-void Watson::beatRobot(MovingObject* robot)
+void Watson::beatRobot(MovingObject *robot)
 {
     if (robot->getName() == "RobotC")
     {
@@ -595,14 +591,10 @@ void Watson::beatRobot(MovingObject* robot)
     {
         this->beatSW(robot);
     }
-    BaseItem* item = this->getBag()->get();
-    if(item !=nullptr) item->use(this, nullptr);
+    BaseItem *item = this->getBag()->get();
+    if (item != nullptr)
+        item->use(this, nullptr);
 }
-
-
-
-
-
 
 // MovingObject - Criminal
 Criminal::Criminal(int index, const Position &init_pos, Map *map, Sherlock *sherlock, Watson *watson) : Character(index, init_pos, map, 0, 0, "Criminal")
@@ -755,7 +747,13 @@ ArrayMovingObject::ArrayMovingObject(int capacity)
 }
 ArrayMovingObject::~ArrayMovingObject()
 {
-    delete[] arr_mv_objs;
+    /*delete[] arr_mv_objs;
+    for (int i = 3; i < this->count; i++)
+    {
+        delete arr_mv_objs[i];
+    }
+    count = 0;
+    */
 }
 bool ArrayMovingObject::isFull() const
 {
@@ -946,7 +944,6 @@ int BaseItem::getItemType() const
 {
     return type;
 }
-BaseItem::~BaseItem() {}
 
 // BaseItem - MagicBook
 MagicBook::MagicBook() : BaseItem(MAGIC_BOOK){};
@@ -955,7 +952,7 @@ bool MagicBook::canUse(Character *obj, Robot *robot)
     return obj->getEXP() <= 350;
 }
 void MagicBook::use(Character *obj, Robot *robot)
-{  
+{
     int newHP = ceil(obj->getEXP() * 125.0 / 100);
     obj->setEXP(newHP);
 }
@@ -1114,13 +1111,10 @@ RobotType Robot::getRobotType() const
 {
     return this->robottype;
 }
-int Robot::getDistance(Character* obj) const
+int Robot::getDistance(Character *obj) const
 {
     return calculateDistance(this->getCurrentPosition(), obj->getCurrentPosition());
 }
-
-
-
 
 // Robot - RobotC
 RobotC::RobotC(){};
@@ -1327,7 +1321,6 @@ Position RobotW::getNextPosition()
         return pri_left;
 }
 
-
 // Robot - RobotSW
 RobotSW::RobotSW(){};
 RobotSW::RobotSW(int index, const Position &pos, Map *map, Criminal *criminal, Sherlock *sherlock, Watson *watson) : Robot(SW, index, pos, map, "RobotSW")
@@ -1498,12 +1491,6 @@ Position RobotSW::getNextPosition()
         return pri_up_left;
 }
 
-
-
-
-
-
-
 // BaseBag
 BaseBag::BaseBag(){};
 BaseBag::BaseBag(Character *obj)
@@ -1527,13 +1514,6 @@ string BaseBag::str() const
     return "";
 }
 
-
-
-
-
-
-
-
 // BaseBag - SherlockBag
 SherlockBag::SherlockBag(){};
 SherlockBag::SherlockBag(Sherlock *sherlock)
@@ -1555,17 +1535,17 @@ bool SherlockBag::insert(BaseItem *item)
     count++;
     return true;
 }
-BaseItem* SherlockBag::get()
+BaseItem *SherlockBag::get()
 {
-    Node* current = head;
-    while (current != nullptr && (current->item->getItemType() == 0 || current->item->getItemType() == 1 || current->item->getItemType() == 2)) 
+    Node *current = head;
+    while (current != nullptr && (current->item->getItemType() == 0 || current->item->getItemType() == 1 || current->item->getItemType() == 2))
     {
         if (current->item->canUse(obj, nullptr))
         {
-            BaseItem* temp = current->item;
+            BaseItem *temp = current->item;
             current->item = head->item;
             head->item = nullptr;
-            Node* tempNode = head;
+            Node *tempNode = head;
             head = head->next;
             delete tempNode;
             count--;
@@ -1616,7 +1596,7 @@ BaseItem *SherlockBag::get(ItemType itemType)
 string SherlockBag::str() const
 {
     string ans = "Bag[count=" + to_string(this->count) + ";";
-    Node* temp = head;
+    Node *temp = head;
     if (temp != nullptr)
     {
         ans += temp->item->str();
@@ -1640,7 +1620,7 @@ WatsonBag::WatsonBag(Watson *watson)
 }
 Node *WatsonBag::getHead()
 {
-   
+
     return this->head;
 }
 bool WatsonBag::insert(BaseItem *item)
@@ -1654,15 +1634,15 @@ bool WatsonBag::insert(BaseItem *item)
 }
 BaseItem *WatsonBag::get()
 {
-    Node* current = head;
+    Node *current = head;
     while (current != nullptr && (current->item->getItemType() == 0 || current->item->getItemType() == 1 || current->item->getItemType() == 2))
     {
         if (current->item->canUse(obj, nullptr))
         {
-            BaseItem* temp = current->item;
+            BaseItem *temp = current->item;
             current->item = head->item;
             head->item = nullptr;
-            Node* tempNode = head;
+            Node *tempNode = head;
             head = head->next;
             delete tempNode;
             count--;
@@ -1713,7 +1693,7 @@ BaseItem *WatsonBag::get(ItemType itemType)
 string WatsonBag::str() const
 {
     string ans = "Bag[count=" + to_string(this->count) + ";";
-    Node* temp = head;
+    Node *temp = head;
     if (temp != nullptr)
     {
         ans += temp->item->str();
