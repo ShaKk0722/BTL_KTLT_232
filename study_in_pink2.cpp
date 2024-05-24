@@ -421,9 +421,19 @@ bool Sherlock::beatRobot(MovingObject *robot)
     {
         this->beatSW(robot);
     }
-    BaseItem *item = this->getBag()->get();
+    BaseItem *item = this->bag->get();
+
     if (item != nullptr)
+    {
         item->use(this, nullptr);
+        delete item;
+    }
+    return false;
+}
+bool Sherlock::hasPassing()
+{
+    if (bag != nullptr)
+        return this->bag->hasPassingCard();
     return false;
 }
 
@@ -593,6 +603,12 @@ void Watson::beatRobot(MovingObject *robot)
     BaseItem *item = this->getBag()->get();
     if (item != nullptr)
         item->use(this, nullptr);
+}
+bool Watson::hasException()
+{
+    if (bag != nullptr)
+        return this->bag->hasExceptionCard();
+    return false;
 }
 
 // MovingObject - Criminal
@@ -1535,21 +1551,22 @@ bool SherlockBag::insert(BaseItem *item)
 }
 BaseItem *SherlockBag::get()
 {
-    Node *current = head;
-    while (current != nullptr && (current->item->getItemType() == 0 || current->item->getItemType() == 1 || current->item->getItemType() == 2))
+    for (Node *current = head; current != nullptr; current = current->next)
     {
-        if (current->item->canUse(obj, nullptr))
+        if (current->item->getItemType() != 0 && current->item->getItemType() != 1 && current->item->getItemType() != 2)
         {
-            BaseItem *temp = current->item;
-            current->item = head->item;
-            head->item = nullptr;
-            Node *tempNode = head;
-            head = head->next;
-            delete tempNode;
-            count--;
-            return temp;
+            continue;
         }
-        current = current->next;
+        if (!current->item->canUse(obj, nullptr))
+            continue;
+        BaseItem *temp = current->item;
+        current->item = head->item;
+        head->item = nullptr;
+        Node *tempNode = head;
+        head = head->next;
+        delete tempNode;
+        count--;
+        return temp;
     }
     return nullptr;
 }
@@ -1632,21 +1649,22 @@ bool WatsonBag::insert(BaseItem *item)
 }
 BaseItem *WatsonBag::get()
 {
-    Node *current = head;
-    while (current != nullptr && (current->item->getItemType() == 0 || current->item->getItemType() == 1 || current->item->getItemType() == 2))
+    for (Node *current = head; current != nullptr; current = current->next)
     {
-        if (current->item->canUse(obj, nullptr))
+        if (current->item->getItemType() != 0 && current->item->getItemType() != 1 && current->item->getItemType() != 2)
         {
-            BaseItem *temp = current->item;
-            current->item = head->item;
-            head->item = nullptr;
-            Node *tempNode = head;
-            head = head->next;
-            delete tempNode;
-            count--;
-            return temp;
+            continue;
         }
-        current = current->next;
+        if (!current->item->canUse(obj, nullptr))
+            continue;
+        BaseItem *temp = current->item;
+        current->item = head->item;
+        head->item = nullptr;
+        Node *tempNode = head;
+        head = head->next;
+        delete tempNode;
+        count--;
+        return temp;
     }
     return nullptr;
 }

@@ -200,6 +200,7 @@ public:
     ~Sherlock()
     {
     }
+    bool hasPassing();
 };
 class Watson : public Character
 {
@@ -225,6 +226,7 @@ public:
     ~Watson()
     {
     }
+    bool hasException();
 };
 class Criminal : public Character
 {
@@ -491,6 +493,15 @@ public:
     ~SherlockBag()
     {
     }
+    bool hasPassingCard()
+    {
+        for (Node *temp = head; temp != nullptr; temp = temp->next)
+        {
+            if (temp->item->getItemType() == 4)
+                return true;
+        }
+        return false;
+    }
 };
 
 class WatsonBag : public BaseBag
@@ -510,6 +521,15 @@ public:
     string str() const;
     ~WatsonBag()
     {
+    }
+    bool hasExceptionCard()
+    {
+        for (Node *temp = head; temp != nullptr; temp = temp->next)
+        {
+            if (temp->item->getItemType() == 3)
+                return true;
+        }
+        return false;
     }
 };
 class StudyPinkProgram
@@ -583,7 +603,7 @@ public:
         delete map;
         delete arr_mv_objs;
     }
-    void run(bool verbose)
+    void run(bool verbose, ofstream &OUTPUT)
     {
         for (int istep = 0; istep < config->num_steps; ++istep)
         {
@@ -594,9 +614,10 @@ public:
                 {
                     if (isStop())
                     {
+                        printInfo(istep, i, OUTPUT);
                         break;
                     }
-                    if (sherlock->meetWatson(watson))
+                    if (sherlock->meetWatson(watson) && sherlock->hasPassing() && watson->hasException())
                     {
                         sherlock->tradeWatson(watson);
                         watson->tradeSherlock(sherlock);
@@ -617,6 +638,7 @@ public:
                     }
                     if (isWin)
                     {
+                        printInfo(istep, i, OUTPUT);
                         break;
                     }
                 }
@@ -624,9 +646,10 @@ public:
                 {
                     if (isStop())
                     {
+                        printInfo(istep, i, OUTPUT);
                         break;
                     }
-                    if (sherlock->meetWatson(watson))
+                    if (sherlock->meetWatson(watson) && sherlock->hasPassing() && watson->hasException())
                     {
                         sherlock->tradeWatson(watson);
                         watson->tradeSherlock(sherlock);
@@ -643,6 +666,7 @@ public:
                 {
                     if (isStop())
                     {
+                        printInfo(istep, i, OUTPUT);
                         break;
                     }
                     int index = arr_mv_objs->size();
@@ -664,6 +688,7 @@ public:
                         {
                             Position pos = criminal->getCurrentPosition();
                             sherlock->set_position(pos);
+                            printInfo(istep, i, OUTPUT);
                             break;
                         }
                     }
@@ -672,11 +697,10 @@ public:
                         watson->beatRobot(arr_mv_objs->get(i));
                     }
                 }
-                
-            }
-            if (verbose)
-            {
-                printStep(istep);
+                if (verbose)
+                {
+                    printInfo(istep, i, OUTPUT);
+                }
             }
             if (isStop())
             {
@@ -684,6 +708,28 @@ public:
             }
         }
         printResult();
+    }
+    void printInfo(int si, int i, ofstream &OUTPUT)
+    {
+        OUTPUT << endl
+               << "*************AFTER MOVE*************" << endl;
+        OUTPUT
+            << "ROUND : " << si << " - TURN : " << i << endl;
+        stringstream ss(arr_mv_objs->str());
+        string lineArr = "";
+        getline(ss, lineArr, 'C');
+        OUTPUT << lineArr << "]" << endl;
+        getline(ss, lineArr, ']');
+        OUTPUT << "\tC" << lineArr << "]" << endl;
+        while (getline(ss, lineArr, ']'))
+        {
+            if (lineArr.length() > 0)
+                OUTPUT << "\t" << lineArr.substr(1) << "]" << endl;
+        }
+        OUTPUT << "Sherlock HP_" << sherlock->getHP() << " EXP_" << sherlock->getEXP() << endl
+               << "Watson HP_" << watson->getHP() << " EXP_" << watson->getEXP() << endl
+               << "SherlockBag : " << sherlock->getBag()->str() << endl
+               << "WatsonBag : " << watson->getBag()->str() << endl;
     }
 };
 
