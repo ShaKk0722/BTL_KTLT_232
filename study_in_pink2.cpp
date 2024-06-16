@@ -168,12 +168,16 @@ Map::Map(int num_rows, int num_cols, int num_walls, Position *array_walls, int n
     for (int i = 0; i < num_fake_walls; i++)
     {
         Position pos = array_fake_walls[i];
+        if (pos.getRow() >= num_rows || pos.getCol() >= num_cols)
+            continue;
         int in_req_exp = (pos.getRow() * 257 + pos.getCol() * 139 + 89) % 900 + 1;
         map[pos.getRow()][pos.getCol()] = new FakeWall(in_req_exp);
     }
     for (int i = 0; i < num_walls; i++)
     {
         Position pos = array_walls[i];
+        if (pos.getRow() >= num_rows || pos.getCol() >= num_cols)
+            continue;
         if (map[pos.getRow()][pos.getCol()] == nullptr)
             delete map[pos.getRow()][pos.getCol()];
         map[pos.getRow()][pos.getCol()] = new Wall;
@@ -224,7 +228,7 @@ bool Map::isValid(const Position &pos, MovingObject *mv_obj) const
         return true;
     if (mv_obj->getName() == "Sherlock" || mv_obj->getName() == "Criminal")
         return true;
-    if (mv_obj->getEXP() >= map[pos.getRow()][pos.getCol()]->getReqExp())
+    if (mv_obj->getEXP() > map[pos.getRow()][pos.getCol()]->getReqExp())
         return true;
     return false;
 }
@@ -267,6 +271,8 @@ string Sherlock::str() const
 }
 void Sherlock::move()
 {
+    if (this->getHP() <= 0 || this->getEXP() <= 0)
+        return;
     Position next = getNextPosition();
     if (next != next.npos)
     {
@@ -450,6 +456,8 @@ string Watson::str() const
 }
 void Watson::move()
 {
+    if (this->getHP() <= 0 || this->getEXP() <= 0)
+        return;
     Position next = getNextPosition();
     if (next != next.npos)
     {
@@ -614,6 +622,7 @@ bool Watson::hasException()
 // MovingObject - Criminal
 Criminal::Criminal(int index, const Position &init_pos, Map *map, Sherlock *sherlock, Watson *watson) : Character(index, init_pos, map, 0, 0, "Criminal")
 {
+    this->prev_pos = this->getCurrentPosition().npos;
     this->step_count = 0;
     this->sherlock = sherlock;
     this->watson = watson;
@@ -963,6 +972,8 @@ int BaseItem::getItemType() const
 MagicBook::MagicBook() : BaseItem(MAGIC_BOOK){};
 bool MagicBook::canUse(Character *obj, Robot *robot)
 {
+    if (obj->getName() != "Sherlock" && obj->getName() != "Watson")
+        return false;
     return obj->getEXP() <= 350;
 }
 void MagicBook::use(Character *obj, Robot *robot)
@@ -979,6 +990,8 @@ string MagicBook::str()
 EnergyDrink::EnergyDrink() : BaseItem(ENERGY_DRINK){};
 bool EnergyDrink::canUse(Character *obj, Robot *robot)
 {
+    if (obj->getName() != "Sherlock" && obj->getName() != "Watson")
+        return false;
     return obj->getHP() <= 100;
 }
 void EnergyDrink::use(Character *obj, Robot *robot)
@@ -995,6 +1008,8 @@ string EnergyDrink::str()
 FirstAid::FirstAid() : BaseItem(FIRST_AID){};
 bool FirstAid::canUse(Character *obj, Robot *robot)
 {
+    if (obj->getName() != "Sherlock" && obj->getName() != "Watson")
+        return false;
     return (obj->getEXP() <= 350 || obj->getHP() <= 100);
 }
 void FirstAid::use(Character *obj, Robot *robot)
@@ -1011,6 +1026,8 @@ string FirstAid::str()
 ExcemptionCard::ExcemptionCard() : BaseItem(EXCEMPTION_CARD){};
 bool ExcemptionCard::canUse(Character *obj, Robot *robot)
 {
+    if (obj->getName() != "Sherlock" && obj->getName() != "Watson")
+        return false;
     return (obj->getName() == "Sherlock" && obj->getHP() % 2 != 0);
 }
 void ExcemptionCard::use(Character *obj, Robot *robot)
@@ -1024,13 +1041,15 @@ string ExcemptionCard::str()
 // BaseItem - PassingCard
 bool PassingCard::canUse(Character *obj, Robot *robot)
 {
+    if (obj->getName() != "Sherlock" && obj->getName() != "Watson")
+        return false;
     return (obj->getName() == "Watson" && obj->getHP() % 2 != 0);
 }
 void PassingCard::use(Character *obj, Robot *robot)
 {
-    if (this->chal == "all")
+    if (this->challenge == "all")
         return;
-    if (this->chal == robot->getName())
+    if (this->challenge == robot->getName())
         return;
     if (obj->getEXP() >= 50)
         obj->setEXP(obj->getEXP() - 50);
@@ -1043,7 +1062,7 @@ string PassingCard::str()
 }
 string PassingCard::getChallenge()
 {
-    return this->chal;
+    return this->challenge;
 }
 // Robot
 Robot::Robot(){};
@@ -1244,6 +1263,10 @@ Position RobotS::getNextPosition()
     else
         return pri_left;
 }
+int RobotS::getDistance() const
+{
+    return calculateDistance(this->getCurrentPosition(), sherlock->getCurrentPosition());
+}
 
 // Robot - RobotW
 RobotW::RobotW(){};
@@ -1333,6 +1356,10 @@ Position RobotW::getNextPosition()
         return pri_down;
     else
         return pri_left;
+}
+int RobotW::getDistance() const
+{
+    return calculateDistance(this->getCurrentPosition(), watson->getCurrentPosition());
 }
 
 // Robot - RobotSW
@@ -1503,6 +1530,10 @@ Position RobotSW::getNextPosition()
         return pri_left_left;
     else
         return pri_up_left;
+}
+int RobotSW::getDistance() const
+{
+    return calculateDistance(this->getCurrentPosition(), sherlock->getCurrentPosition()) + calculateDistance(this->getCurrentPosition(), watson->getCurrentPosition());
 }
 
 // BaseBag

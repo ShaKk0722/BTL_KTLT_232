@@ -68,6 +68,8 @@ enum RobotType
 
 class MapElement
 {
+    friend class TestStudyInPink;
+
 protected:
     ElementType type;
 
@@ -80,18 +82,24 @@ public:
 }; // abstract class
 class Path : public MapElement
 {
+    friend class TestStudyInPink;
+
 public:
     Path();
     int getReqExp() const;
 };
 class Wall : public MapElement
 {
+    friend class TestStudyInPink;
+
 public:
     Wall();
     int getReqExp() const;
 };
 class FakeWall : public MapElement
 {
+    friend class TestStudyInPink;
+
 private:
     int req_exp;
 
@@ -102,6 +110,8 @@ public:
 };
 class Position
 {
+    friend class TestStudyInPink;
+
 private:
     int r, c;
 
@@ -122,6 +132,8 @@ public:
 
 class Map
 {
+    friend class TestStudyInPink;
+
 private:
     int num_rows, num_cols;
     MapElement ***map;
@@ -136,6 +148,8 @@ public:
 
 class MovingObject
 {
+    friend class TestStudyInPink;
+
 protected:
     int index;
     Position pos;
@@ -163,6 +177,8 @@ public:
 }; // abstract class
 class Character : public MovingObject
 {
+    friend class TestStudyInPink;
+
 protected:
     int hp;
     int exp;
@@ -177,6 +193,8 @@ public:
 };
 class Sherlock : public Character
 {
+    friend class TestStudyInPink;
+
 private:
     // TODO
     string moving_rule;
@@ -204,6 +222,8 @@ public:
 };
 class Watson : public Character
 {
+    friend class TestStudyInPink;
+
 private:
     // TODO
     string moving_rule;
@@ -230,6 +250,8 @@ public:
 };
 class Criminal : public Character
 {
+    friend class TestStudyInPink;
+
 private:
     Sherlock *sherlock;
     Watson *watson;
@@ -253,6 +275,8 @@ public:
 };
 class ArrayMovingObject
 {
+    friend class TestStudyInPink;
+
 private:
     MovingObject **arr_mv_objs;
     int capacity;
@@ -272,6 +296,7 @@ public:
 class Configuration
 {
     friend class StudyPinkProgram;
+    friend class TestStudyInPink;
 
 private:
     // TODO
@@ -301,6 +326,8 @@ public:
 
 class BaseItem
 {
+    friend class TestStudyInPink;
+
 private:
     ItemType type;
 
@@ -318,6 +345,8 @@ public:
 };
 class MagicBook : public BaseItem
 {
+    friend class TestStudyInPink;
+
 public:
     MagicBook();
     bool canUse(Character *obj, Robot *robot) override;
@@ -326,6 +355,8 @@ public:
 };
 class EnergyDrink : public BaseItem
 {
+    friend class TestStudyInPink;
+
 public:
     EnergyDrink();
     bool canUse(Character *obj, Robot *robot) override;
@@ -334,6 +365,8 @@ public:
 };
 class FirstAid : public BaseItem
 {
+    friend class TestStudyInPink;
+
 public:
     FirstAid();
     bool canUse(Character *obj, Robot *robot) override;
@@ -342,6 +375,8 @@ public:
 };
 class ExcemptionCard : public BaseItem
 {
+    friend class TestStudyInPink;
+
 public:
     ExcemptionCard();
     bool canUse(Character *obj, Robot *robot) override;
@@ -350,11 +385,13 @@ public:
 };
 class PassingCard : public BaseItem
 {
+    friend class TestStudyInPink;
+
 private:
-    string chal;
+    string challenge;
 
 public:
-    PassingCard(string challenge) : chal(challenge), BaseItem(PASSING_CARD){};
+    PassingCard(string chal) : challenge(chal), BaseItem(PASSING_CARD){};
     bool canUse(Character *obj, Robot *robot) override;
     void use(Character *obj, Robot *robot) override;
     string str() override;
@@ -364,6 +401,8 @@ public:
 // Robot, BaseItem, BaseBag,...
 class Robot : public MovingObject
 {
+    friend class TestStudyInPink;
+
 protected:
     RobotType robottype;
     BaseItem *item;
@@ -379,9 +418,15 @@ public:
     ~Robot()
     {
     }
+    virtual int getDistance() const
+    {
+        return 0;
+    }
 };
 class RobotC : public Robot
 {
+    friend class TestStudyInPink;
+
 private:
     Criminal *criminal;
 
@@ -397,6 +442,8 @@ public:
 };
 class RobotS : public Robot
 {
+    friend class TestStudyInPink;
+
 private:
     Sherlock *sherlock;
     Criminal *criminal;
@@ -410,9 +457,12 @@ public:
     ~RobotS()
     {
     }
+    int getDistance() const;
 };
 class RobotW : public Robot
 {
+    friend class TestStudyInPink;
+
 private:
     Watson *watson;
     Criminal *criminal;
@@ -426,9 +476,12 @@ public:
     ~RobotW()
     {
     }
+    int getDistance() const;
 };
 class RobotSW : public Robot
 {
+    friend class TestStudyInPink;
+
 private:
     Sherlock *sherlock;
     Watson *watson;
@@ -443,6 +496,7 @@ public:
     ~RobotSW()
     {
     }
+    int getDistance() const;
 };
 
 struct Node
@@ -459,6 +513,8 @@ struct Node
 
 class BaseBag
 {
+    friend class TestStudyInPink;
+
 protected:
     Character *obj;
 
@@ -476,6 +532,8 @@ public:
 
 class SherlockBag : public BaseBag
 {
+    friend class TestStudyInPink;
+
 private:
     Node *head;
     int const capacity = 13;
@@ -506,6 +564,8 @@ public:
 
 class WatsonBag : public BaseBag
 {
+    friend class TestStudyInPink;
+
 private:
     Node *head;
     int const capacity = 15;
@@ -534,6 +594,8 @@ public:
 };
 class StudyPinkProgram
 {
+    friend class TestStudyInPink;
+
 private:
     // Sample attributes
     Configuration *config;
@@ -570,7 +632,6 @@ public:
             return true;
         return false;
     }
-
     void printResult() const
     {
         if (sherlock->getCurrentPosition().isEqual(criminal->getCurrentPosition().getRow(), criminal->getCurrentPosition().getCol()) || isWin == true)
@@ -586,14 +647,12 @@ public:
             cout << "The criminal escaped" << endl;
         }
     }
-
     void printStep(int si) const
     {
         cout << "Step: " << setw(4) << setfill('0') << si
              << "--"
              << sherlock->str() << "--|--" << watson->str() << "--|--" << criminal->str() << endl;
     }
-
     ~StudyPinkProgram()
     {
         delete config;
